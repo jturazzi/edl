@@ -1,0 +1,22 @@
+services:
+  edl:
+    container_name: edl
+    image: ghcr.io/jturazzi/edl:latest
+    restart: unless-stopped
+    ports:
+      - "10020:8080"
+    volumes:
+      - storage-data:/var/www/html/storage
+    env_file:
+      - .env
+    command: ["frankenphp", "run"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/up"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  storage-data:
+    driver: local
