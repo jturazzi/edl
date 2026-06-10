@@ -47,7 +47,7 @@ Application web de gestion des **États des Lieux** (entrants et sortants) avec 
 services:
   edl:
     container_name: edl
-    image: ghcr.io/VOTRE_ORG/edl:latest
+    image: ghcr.io/jturazzi/edl:latest
     restart: unless-stopped
     ports:
       - "8080:8080"
@@ -76,7 +76,7 @@ curl -o .env https://raw.githubusercontent.com/jturazzi/edl/main/.env.example
 
 | Variable | Description | Exemple |
 |---|---|---|
-| `APP_NAME` | Nom affiché dans toute l'application | `"Etat des lieux"` |
+| `APP_NAME` | Nom affiché dans toute l'application | `"Etat des lieux Compagnie"` |
 | `APP_LOGO` | URL HTTPS du logo (navbar, login, PDF) | `https://exemple.com/logo.png` |
 | `APP_PDF_COLOR` | Couleur principale des PDF (hex) | `#33CCFF` |
 | `APP_DEPARTEMENT` | Numéro de département pour la recherche de commune | `42` |
@@ -87,7 +87,9 @@ curl -o .env https://raw.githubusercontent.com/jturazzi/edl/main/.env.example
 | `MICROSOFT_REDIRECT_URI` | URL de callback OAuth | `https://edl.exemple.com/auth/microsoft/callback` |
 | `MICROSOFT_TENANT_ID` | ID du tenant Entra ID | `xxxxxxxx-xxxx-...` |
 | `MAIL_HOST` | Serveur SMTP | `smtp.exemple.com` |
+| `MAIL_PORT` | Port  | `25` |
 | `MAIL_FROM_ADDRESS` | Adresse d'expédition des emails | `edl@exemple.com` |
+| `MAIL_FROM_NAME` | Nom d'expéditeur affiché dans les emails | `"EDL"` |
 
 > **Important** : `MICROSOFT_REDIRECT_URI` doit correspondre exactement à l'URI configurée dans Entra ID.
 
