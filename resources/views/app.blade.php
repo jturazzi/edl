@@ -7,14 +7,13 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="icon" type="image/png" href="/images/favicon.png">
-    <link rel="apple-touch-icon" href="/images/icon-192.png">
+    <!-- Icônes : à ajouter dans public/images/ une fois disponibles -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#1e40af">
     <title>{{ config('app.name', 'État des lieux') }}</title>
     <script>
         window.__APP_NAME__ = @json(config('app.name', 'État des lieux'));
-        window.__APP_LOGO__ = @json(config('app.logo', '/images/logo.png'));
+        window.__APP_LOGO__ = @json(config('app.logo', ''));
         window.__APP_DEPARTEMENT__ = @json(config('app.departement', '42'));
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
