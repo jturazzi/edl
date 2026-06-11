@@ -23,7 +23,7 @@ Application web de gestion des **États des Lieux** (entrants et sortants) avec 
 
 | Couche | Technologie |
 |---|---|
-| Backend | Laravel 12, PHP 8.5 |
+| Backend | Laravel 13, PHP 8.5 |
 | Frontend | Vue 3 + Vue Router 4, Tailwind CSS 4 |
 | Auth | Laravel Socialite + socialiteproviders/microsoft |
 | PDF | barryvdh/laravel-dompdf |
@@ -207,7 +207,7 @@ Les tags générés :
 ## Développement local
 
 ```bash
-git clone https://github.com/VOTRE_ORG/edl.git
+git clone https://github.com/jturazzi/edl.git
 cd edl
 
 cp .env.example .env
