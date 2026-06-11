@@ -3,9 +3,6 @@ const CACHE_NAME = 'edl-anef-v1';
 const STATIC_ASSETS = [
     '/',
     '/manifest.json',
-    '/images/favicon.png',
-    '/images/icon-192.png',
-    '/images/icon-512.png',
 ];
 
 // Installation : mise en cache des ressources statiques

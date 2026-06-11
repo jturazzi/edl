@@ -189,7 +189,7 @@ const route = useRoute()
 const router = useRouter()
 
 const appName = window.__APP_NAME__ || 'État des lieux'
-const appLogo = window.__APP_LOGO__ || '/images/favicon.png'
+const appLogo = window.__APP_LOGO__ || ''
 const appVersion = APP_VERSION
 const currentYear = new Date().getFullYear()
 
