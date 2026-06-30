@@ -33,7 +33,7 @@ export const steps = [
     room('sejour',   '🛋️', 'Séjour',          ['Sol','Murs','Plafond','Chauffage','Fenêtre','Volet/Store','Meuble(s)','Luminaires','Prises électrique']),
     room('wc',       '🚽', 'WC',              ['Cuvette WC','Abattant',"Chasse d'eau",'Lavabo','Ouverture','Luminaires','Prises électrique']),
     room('sdb',      '🛁', 'Salle de bains',  [
-        'Plafond','Murs','Sol','Porte','Chauffage','Fenêtre',
+        'Plafond','Murs','Sol','Porte','Chauffage','Fenêtre','VMC',
         'Colonne lavabo','Robinet/mélangeur Lavabo','Douche/baignoire',
         'Robinet/mélangeur douche','Inverseur douche/baignoire',
         'Flexible et douchette douche','Joint lavabo','Joint douche/baignoire',

@@ -207,7 +207,7 @@
         'sejour'   => ['label' => 'Séjour',         'items' => ['Sol','Murs','Plafond','Chauffage','Fenêtre','Volet/Store','Meubles','Luminaires','Prises électrique']],
         'wc'       => ['label' => 'WC',             'items' => ['Cuvette WC','Abattant','Chasse d\'eau','Lavabo','Ouverture','Luminaires','Prises électrique']],
         'sdb'      => ['label' => 'Salle de bains', 'items' => [
-            'Plafond','Murs','Sol','Porte','Chauffage','Fenêtre',
+            'Plafond','Murs','Sol','Porte','Chauffage','Fenêtre','VMC',
             'Colonne lavabo','Robinet/mélangeur Lavabo',
             'Douche/baignoire','Robinet/mélangeur douche',
             'Inverseur douche/baignoire','Flexible et douchette douche',
