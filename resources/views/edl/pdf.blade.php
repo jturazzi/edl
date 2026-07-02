@@ -165,8 +165,16 @@
     $appLogoUrl = config('app.logo', '');
     if (!empty($appLogoUrl) && str_starts_with($appLogoUrl, 'https://')) {
         // Récupération depuis URL HTTPS
-        $ctx = stream_context_create(['http' => ['timeout' => 5]]);
+        $ctx = stream_context_create(['http' => [
+            'timeout' => 5,
+            'header' => "User-Agent: Mozilla/5.0 (compatible; EDL-PDF-Bot/1.0)\r\n",
+            'ignore_errors' => true,
+        ]]);
         $logoData = @file_get_contents($appLogoUrl, false, $ctx);
+        $statusLine = $http_response_header[0] ?? '';
+        if ($logoData !== false && $statusLine && !str_contains($statusLine, ' 200 ')) {
+            $logoData = false;
+        }
         if ($logoData !== false) {
             $ext = strtolower(pathinfo(parse_url($appLogoUrl, PHP_URL_PATH), PATHINFO_EXTENSION));
             $mimeMap = ['png' => 'image/png', 'jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'gif' => 'image/gif', 'svg' => 'image/svg+xml', 'webp' => 'image/webp'];

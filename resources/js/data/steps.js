@@ -29,7 +29,7 @@ export const steps = [
 
     room('entree',   '🚪', 'Entrée',         ['Sol','Murs','Porte palière','Interphone','Chauffage','Fenêtre','Luminaires','Prises électrique']),
     room('couloir',  '🚶', 'Couloir',         ['Sol','Murs','Plafond','Porte','Chauffage','Fenêtre','Luminaires','Prises électrique']),
-    room('cuisine',  '🍳', 'Cuisine',         ['Plafond','Sol','Murs','Aération','Évier','Robinetterie','Chaudière','Fenêtre','Luminaires','Prises électrique']),
+    room('cuisine',  '🍳', 'Cuisine',         ['Plafond','Sol','Murs','Aération','Évier','Robinetterie','Chaudière','Plaque de cuisson','Fenêtre','Luminaires','Prises électrique']),
     room('sejour',   '🛋️', 'Séjour',          ['Sol','Murs','Plafond','Chauffage','Fenêtre','Volet/Store','Meuble(s)','Luminaires','Prises électrique']),
     room('wc',       '🚽', 'WC',              ['Cuvette WC','Abattant',"Chasse d'eau",'Lavabo','Ouverture','Luminaires','Prises électrique']),
     room('sdb',      '🛁', 'Salle de bains',  [
