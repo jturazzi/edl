@@ -16,12 +16,21 @@ const etat = [
     { value: 'mauvais', label: '🔴 Mauvais état' },
 ]
 
+const fonctionnement = [
+    { value: 'oui', label: '✅ Fonctionne' },
+    { value: 'non', label: '❌ Ne fonctionne pas' },
+]
+
 const room = (key, icon, title, elements) => ({
     type: 'room', key, icon, title, elements, etat,
 })
 
 const inv = (key, icon, title, items, withDimension = false) => ({
     type: 'inventory', key, icon, title, items, withDimension,
+})
+
+const checklist = (key, icon, title, items, options) => ({
+    type: 'checklist', key, icon, title, items, options,
 })
 
 export const steps = [
@@ -42,6 +51,8 @@ export const steps = [
     room('chambre1', '🛏️', 'Chambre 1',       ['Sol','Murs','Plafond','Porte','Chauffage','Fenêtre','Volets/Stores','Luminaires','Prises électrique']),
     room('chambre2', '🛏️', 'Chambre 2',       ['Sol','Murs','Plafond','Porte','Chauffage','Fenêtre','Volets/Stores','Luminaires','Prises électrique']),
     room('chambre3', '🛏️', 'Chambre 3',       ['Sol','Murs','Plafond','Porte','Chauffage','Fenêtre','Volets/Stores','Luminaires','Prises électrique']),
+
+    checklist('volets', '🪟', 'Volets', ['Séjour','Chambre 1','Chambre 2','Chambre 3'], fonctionnement),
 
     inv('vaisselle', '🍽️', 'Vaisselle', [
         'Passoire','Saladier','Plat four','Assiette plate','Assiette creuse',

@@ -208,6 +208,22 @@
         };
     };
 
+    $fonctionnementLabel = function(?string $val): string {
+        return match($val) {
+            'oui' => 'Fonctionne',
+            'non' => 'Ne fonctionne pas',
+            default => 'Non renseigné',
+        };
+    };
+
+    $fonctionnementClass = function(?string $val): string {
+        return match($val) {
+            'oui' => 'etat-bon',
+            'non' => 'etat-mauvais',
+            default => 'etat-nr',
+        };
+    };
+
     $roomsConfig = [
         'entree'   => ['label' => 'Entrée',        'items' => ['Sol','Murs','Porte palière','Interphone','Chauffage','Fenêtre','Luminaires','Prises électrique']],
         'couloir'  => ['label' => 'Couloir',        'items' => ['Sol','Murs','Plafond','Porte','Chauffage','Fenêtre','Luminaires','Prises électrique']],
@@ -225,6 +241,11 @@
         'chambre1' => ['label' => 'Chambre 1',      'items' => ['Sol','Murs','Plafond','Porte','Chauffage','Fenêtre','Volets/Stores','Luminaires','Prises électrique']],
         'chambre2' => ['label' => 'Chambre 2',      'items' => ['Sol','Murs','Plafond','Porte','Chauffage','Fenêtre','Volets/Stores','Luminaires','Prises électrique']],
         'chambre3' => ['label' => 'Chambre 3',      'items' => ['Sol','Murs','Plafond','Porte','Chauffage','Fenêtre','Volets/Stores','Luminaires','Prises électrique']],
+    ];
+
+    $voletsConfig = [
+        'label' => 'Volets',
+        'items' => ['Séjour', 'Chambre 1', 'Chambre 2', 'Chambre 3'],
     ];
 
     $inventaireConfig = [
@@ -596,6 +617,115 @@
 </div>
 @endif
 @endforeach
+
+{{-- VOLETS --}}
+@php
+    $voletsPhotos = $edl->photos->where('room', 'volets');
+    $voletsItemsFilled = collect($voletsConfig['items'])->filter(function($item) use ($data) {
+        $itemKey = 'volets_' . \Str::slug($item, '_');
+        return !empty($data["{$itemKey}_fonctionnement"]) || !empty($data["{$itemKey}_obs"]);
+    });
+    $voletsHasData = $voletsItemsFilled->isNotEmpty() || $voletsPhotos->isNotEmpty();
+@endphp
+@if($voletsHasData)
+<div class="section">
+    <table class="section-header" width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+            <td class="section-header-td">{{ $voletsConfig['label'] }}</td>
+            <td class="section-header-count-td">{{ $voletsItemsFilled->count() }} {{ $voletsItemsFilled->count() > 1 ? 'éléments' : 'élément' }}</td>
+        </tr>
+    </table>
+    <div class="section-body">
+        @if($voletsItemsFilled->isNotEmpty())
+        <table class="data-table">
+            <thead><tr>
+                <th class="col-label">Élément</th>
+                <th class="col-etat">Fonctionnement</th>
+                <th>Observations</th>
+            </tr></thead>
+            <tbody>
+                @foreach($voletsItemsFilled as $item)
+                @php
+                    $itemKey = 'volets_' . \Str::slug($item, '_');
+                    $fonctVal = $data["{$itemKey}_fonctionnement"] ?? null;
+                    $obsVal   = $data["{$itemKey}_obs"] ?? null;
+                @endphp
+                <tr class="{{ $loop->even ? 'row-alt' : '' }}">
+                    <td>{{ $item }}</td>
+                    <td class="{{ $fonctionnementClass($fonctVal) }}">{{ $fonctionnementLabel($fonctVal) }}</td>
+                    <td class="col-obs">{{ $obsVal ?: '' }}</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+        @endif
+        @if($voletsPhotos->isNotEmpty())
+        <div class="photos-label">Photos ({{ $voletsPhotos->count() }})</div>
+        <div class="photos-wrap">
+            @foreach($voletsPhotos as $photo)
+            @php
+                $photoPath   = \Illuminate\Support\Facades\Storage::disk('local')->path($photo->photo_path);
+                $photoExists = file_exists($photoPath);
+                $src         = '';
+                $photoClass  = 'photo-img-landscape';
+
+                if ($photoExists) {
+                    $mime    = mime_content_type($photoPath) ?: 'image/jpeg';
+                    $imgInfo = @getimagesize($photoPath);
+                    $imgW    = $imgInfo ? $imgInfo[0] : 0;
+                    $imgH    = $imgInfo ? $imgInfo[1] : 0;
+
+                    $rotation = 0;
+                    if (function_exists('exif_read_data') && in_array($mime, ['image/jpeg', 'image/tiff'])) {
+                        $exif        = @exif_read_data($photoPath);
+                        $orientation = isset($exif['Orientation']) ? (int)$exif['Orientation'] : 1;
+                        $rotation    = match($orientation) {
+                            3 => 180,
+                            6 => -90,
+                            8 =>  90,
+                            default => 0,
+                        };
+                    }
+
+                    if ($rotation !== 0 && function_exists('imagecreatefromjpeg')) {
+                        $res = match($mime) {
+                            'image/jpeg' => @imagecreatefromjpeg($photoPath),
+                            'image/png'  => @imagecreatefrompng($photoPath),
+                            'image/gif'  => @imagecreatefromgif($photoPath),
+                            'image/webp' => function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($photoPath) : false,
+                            default      => false,
+                        };
+
+                        if ($res) {
+                            $rotated = imagerotate($res, $rotation, 0);
+                            imagedestroy($res);
+                            ob_start();
+                            imagejpeg($rotated, null, 85);
+                            $imgData = ob_get_clean();
+                            imagedestroy($rotated);
+                            $mime = 'image/jpeg';
+                            $b64  = base64_encode($imgData);
+                            if (abs($rotation) === 90) { [$imgW, $imgH] = [$imgH, $imgW]; }
+                        } else {
+                            $b64 = base64_encode(file_get_contents($photoPath));
+                        }
+                    } else {
+                        $b64 = base64_encode(file_get_contents($photoPath));
+                    }
+
+                    $src        = "data:{$mime};base64,{$b64}";
+                    $photoClass = ($imgW >= $imgH) ? 'photo-img-landscape' : 'photo-img-portrait';
+                }
+            @endphp
+            @if($photoExists)
+            <img src="{{ $src }}" class="{{ $photoClass }}" alt="Photo {{ $voletsConfig['label'] }}">
+            @endif
+            @endforeach
+        </div>
+        @endif
+    </div>
+</div>
+@endif
 
 {{-- INVENTAIRE --}}
 @foreach($inventaireConfig as $secKey => $secCfg)

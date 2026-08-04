@@ -228,6 +228,66 @@
                     </div>
                 </template>
 
+                <!-- TYPE : CHECKLIST (fonctionnement OUI/NON + observations) -->
+                <template v-else-if="step.type === 'checklist'">
+                    <div class="space-y-4">
+                        <div v-for="item in step.items" :key="item"
+                            class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
+                            <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-3">{{ item }}</h3>
+                            <div class="grid grid-cols-2 gap-2 mb-3">
+                                <label v-for="opt in step.options" :key="opt.value" class="cursor-pointer">
+                                    <input type="radio"
+                                        :name="`${step.key}_${slugify(item)}_fonctionnement`"
+                                        :value="opt.value"
+                                        v-model="formData[`${step.key}_${slugify(item)}_fonctionnement`]"
+                                        @change="onFieldChange"
+                                        class="sr-only">
+                                    <div class="etat-card rounded-xl border-2 border-gray-200 px-2 py-3 text-center text-sm font-semibold text-gray-500 transition-all select-none">
+                                        {{ opt.label }}
+                                    </div>
+                                </label>
+                            </div>
+                            <textarea v-model="formData[`${step.key}_${slugify(item)}_obs`]"
+                                @input="onFieldChange"
+                                rows="2" placeholder="Observations…"
+                                class="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl px-4 py-3 text-base focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 resize-none">
+                            </textarea>
+                        </div>
+
+                        <!-- Photos -->
+                        <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
+                            <h3 class="text-base font-bold text-gray-700 dark:text-gray-200 mb-3">Photos</h3>
+                            <div class="flex gap-2">
+                                <button type="button" @click="openPhotoUpload(step.key)"
+                                    class="flex-1 flex items-center justify-center gap-2 bg-indigo-50 hover:bg-indigo-100
+                                           text-indigo-700 font-semibold rounded-xl border border-indigo-200
+                                           py-3 px-4 text-sm transition min-h-[48px]">
+                                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                    <span>Galerie</span>
+                                </button>
+                                <button type="button" @click="openCameraCapture(step.key)"
+                                    class="flex-1 flex items-center justify-center gap-2 bg-slate-50 hover:bg-slate-100
+                                           text-slate-700 font-semibold rounded-xl border border-slate-200
+                                           py-3 px-4 text-sm transition min-h-[48px]">
+                                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    </svg>
+                                    <span>Prendre une photo</span>
+                                </button>
+                            </div>
+                            <div v-if="(photos[step.key] || []).length" class="grid grid-cols-3 gap-2 mt-3">
+                                <div v-for="photo in (photos[step.key] || [])" :key="photo.id" class="relative group">
+                                    <img :src="photo.url" :alt="step.key"
+                                        class="rounded-xl object-cover w-full border border-gray-200 dark:border-gray-700 shadow-sm" style="height:90px;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
                 <!-- TYPE : INVENTAIRE SIMPLE -->
                 <template v-else-if="step.type === 'inventory'">
                     <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
@@ -419,6 +479,12 @@ const stepFilled = computed(() => {
         if (step.type === 'room') {
             return step.elements.some(el => {
                 const key = `${step.key}_${slugify(el)}_etat`
+                return formData[key] !== undefined && formData[key] !== '' && formData[key] !== null
+            })
+        }
+        if (step.type === 'checklist') {
+            return step.items.some(item => {
+                const key = `${step.key}_${slugify(item)}_fonctionnement`
                 return formData[key] !== undefined && formData[key] !== '' && formData[key] !== null
             })
         }
