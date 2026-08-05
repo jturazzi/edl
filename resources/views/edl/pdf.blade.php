@@ -224,6 +224,80 @@
         };
     };
 
+    // Prépare une photo pour intégration dans le PDF : corrige la rotation EXIF
+    // et réduit les images trop grandes (ex: photo prise en pleine résolution,
+    // 4000px+) qui font que dompdf ignore le max-width/max-height CSS et
+    // rend l'image à sa taille native, cassant la mise en page du document.
+    $processPhoto = function(string $photoPath): array {
+        $maxDim  = 1400;
+        $mime    = mime_content_type($photoPath) ?: 'image/jpeg';
+        $imgInfo = @getimagesize($photoPath);
+        $imgW    = $imgInfo ? $imgInfo[0] : 0;
+        $imgH    = $imgInfo ? $imgInfo[1] : 0;
+
+        $rotation = 0;
+        if (function_exists('exif_read_data') && in_array($mime, ['image/jpeg', 'image/tiff'])) {
+            $exif        = @exif_read_data($photoPath);
+            $orientation = isset($exif['Orientation']) ? (int)$exif['Orientation'] : 1;
+            $rotation    = match($orientation) {
+                3 => 180, 6 => -90, 8 => 90, default => 0,
+            };
+        }
+
+        $needsGd = $rotation !== 0 || max($imgW, $imgH) > $maxDim;
+
+        if ($needsGd && function_exists('imagecreatefromjpeg')) {
+            $res = match($mime) {
+                'image/jpeg' => @imagecreatefromjpeg($photoPath),
+                'image/png'  => @imagecreatefrompng($photoPath),
+                'image/gif'  => @imagecreatefromgif($photoPath),
+                'image/webp' => function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($photoPath) : false,
+                default      => false,
+            };
+
+            if ($res) {
+                if ($rotation !== 0) {
+                    $rotated = imagerotate($res, $rotation, 0);
+                    imagedestroy($res);
+                    $res = $rotated;
+                    if (abs($rotation) === 90) { [$imgW, $imgH] = [$imgH, $imgW]; }
+                }
+
+                if (max($imgW, $imgH) > $maxDim) {
+                    $scale = $maxDim / max($imgW, $imgH);
+                    $newW  = max(1, (int) round($imgW * $scale));
+                    $newH  = max(1, (int) round($imgH * $scale));
+                    $resized = imagecreatetruecolor($newW, $newH);
+                    if (in_array($mime, ['image/png', 'image/gif'])) {
+                        imagealphablending($resized, false);
+                        imagesavealpha($resized, true);
+                    }
+                    imagecopyresampled($resized, $res, 0, 0, 0, 0, $newW, $newH, $imgW, $imgH);
+                    imagedestroy($res);
+                    $res  = $resized;
+                    $imgW = $newW;
+                    $imgH = $newH;
+                }
+
+                ob_start();
+                imagejpeg($res, null, 85);
+                $imgData = ob_get_clean();
+                imagedestroy($res);
+                $mime = 'image/jpeg';
+                $b64  = base64_encode($imgData);
+            } else {
+                $b64 = base64_encode(file_get_contents($photoPath));
+            }
+        } else {
+            $b64 = base64_encode(file_get_contents($photoPath));
+        }
+
+        return [
+            'src'   => "data:{$mime};base64,{$b64}",
+            'class' => ($imgW >= $imgH) ? 'photo-img-landscape' : 'photo-img-portrait',
+        ];
+    };
+
     $roomsConfig = [
         'entree'   => ['label' => 'Entrée',        'items' => ['Sol','Murs','Porte palière','Interphone','Chauffage','Fenêtre','Luminaires','Prises électrique']],
         'couloir'  => ['label' => 'Couloir',        'items' => ['Sol','Murs','Plafond','Porte','Chauffage','Fenêtre','Luminaires','Prises électrique']],
@@ -452,47 +526,9 @@
                 $photoClass  = 'photo-img-landscape';
 
                 if ($photoExists) {
-                    $mime    = mime_content_type($photoPath) ?: 'image/jpeg';
-                    $imgInfo = @getimagesize($photoPath);
-                    $imgW    = $imgInfo ? $imgInfo[0] : 0;
-                    $imgH    = $imgInfo ? $imgInfo[1] : 0;
-
-                    $rotation = 0;
-                    if (function_exists('exif_read_data') && in_array($mime, ['image/jpeg', 'image/tiff'])) {
-                        $exif        = @exif_read_data($photoPath);
-                        $orientation = isset($exif['Orientation']) ? (int)$exif['Orientation'] : 1;
-                        $rotation    = match($orientation) {
-                            3 => 180, 6 => -90, 8 => 90, default => 0,
-                        };
-                    }
-
-                    if ($rotation !== 0 && function_exists('imagecreatefromjpeg')) {
-                        $res = match($mime) {
-                            'image/jpeg' => @imagecreatefromjpeg($photoPath),
-                            'image/png'  => @imagecreatefrompng($photoPath),
-                            'image/gif'  => @imagecreatefromgif($photoPath),
-                            'image/webp' => function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($photoPath) : false,
-                            default      => false,
-                        };
-                        if ($res) {
-                            $rotated = imagerotate($res, $rotation, 0);
-                            imagedestroy($res);
-                            ob_start();
-                            imagejpeg($rotated, null, 85);
-                            $imgData = ob_get_clean();
-                            imagedestroy($rotated);
-                            $mime = 'image/jpeg';
-                            $b64  = base64_encode($imgData);
-                            if (abs($rotation) === 90) { [$imgW, $imgH] = [$imgH, $imgW]; }
-                        } else {
-                            $b64 = base64_encode(file_get_contents($photoPath));
-                        }
-                    } else {
-                        $b64 = base64_encode(file_get_contents($photoPath));
-                    }
-
-                    $src        = "data:{$mime};base64,{$b64}";
-                    $photoClass = ($imgW >= $imgH) ? 'photo-img-landscape' : 'photo-img-portrait';
+                    $photoData  = $processPhoto($photoPath);
+                    $src        = $photoData['src'];
+                    $photoClass = $photoData['class'];
                 }
             @endphp
             @if($photoExists)
@@ -557,54 +593,9 @@
                 $photoClass  = 'photo-img-landscape';
 
                 if ($photoExists) {
-                    $mime    = mime_content_type($photoPath) ?: 'image/jpeg';
-                    $imgInfo = @getimagesize($photoPath);
-                    $imgW    = $imgInfo ? $imgInfo[0] : 0;
-                    $imgH    = $imgInfo ? $imgInfo[1] : 0;
-
-                    // ── Correction EXIF (smartphones) ──────────────────────
-                    $rotation = 0;
-                    if (function_exists('exif_read_data') && in_array($mime, ['image/jpeg', 'image/tiff'])) {
-                        $exif        = @exif_read_data($photoPath);
-                        $orientation = isset($exif['Orientation']) ? (int)$exif['Orientation'] : 1;
-                        $rotation    = match($orientation) {
-                            3 => 180,
-                            6 => -90,   // portrait capturé CW → corriger CCW
-                            8 =>  90,   // portrait capturé CCW → corriger CW
-                            default => 0,
-                        };
-                    }
-
-                    // ── Rotation physique via GD si nécessaire ─────────────
-                    if ($rotation !== 0 && function_exists('imagecreatefromjpeg')) {
-                        $res = match($mime) {
-                            'image/jpeg' => @imagecreatefromjpeg($photoPath),
-                            'image/png'  => @imagecreatefrompng($photoPath),
-                            'image/gif'  => @imagecreatefromgif($photoPath),
-                            'image/webp' => function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($photoPath) : false,
-                            default      => false,
-                        };
-
-                        if ($res) {
-                            $rotated = imagerotate($res, $rotation, 0);
-                            imagedestroy($res);
-                            ob_start();
-                            imagejpeg($rotated, null, 85);
-                            $imgData = ob_get_clean();
-                            imagedestroy($rotated);
-                            $mime = 'image/jpeg';
-                            $b64  = base64_encode($imgData);
-                            // Les dimensions s'inversent après ±90°
-                            if (abs($rotation) === 90) { [$imgW, $imgH] = [$imgH, $imgW]; }
-                        } else {
-                            $b64 = base64_encode(file_get_contents($photoPath));
-                        }
-                    } else {
-                        $b64 = base64_encode(file_get_contents($photoPath));
-                    }
-
-                    $src        = "data:{$mime};base64,{$b64}";
-                    $photoClass = ($imgW >= $imgH) ? 'photo-img-landscape' : 'photo-img-portrait';
+                    $photoData  = $processPhoto($photoPath);
+                    $src        = $photoData['src'];
+                    $photoClass = $photoData['class'];
                 }
             @endphp
             @if($photoExists)
@@ -670,51 +661,9 @@
                 $photoClass  = 'photo-img-landscape';
 
                 if ($photoExists) {
-                    $mime    = mime_content_type($photoPath) ?: 'image/jpeg';
-                    $imgInfo = @getimagesize($photoPath);
-                    $imgW    = $imgInfo ? $imgInfo[0] : 0;
-                    $imgH    = $imgInfo ? $imgInfo[1] : 0;
-
-                    $rotation = 0;
-                    if (function_exists('exif_read_data') && in_array($mime, ['image/jpeg', 'image/tiff'])) {
-                        $exif        = @exif_read_data($photoPath);
-                        $orientation = isset($exif['Orientation']) ? (int)$exif['Orientation'] : 1;
-                        $rotation    = match($orientation) {
-                            3 => 180,
-                            6 => -90,
-                            8 =>  90,
-                            default => 0,
-                        };
-                    }
-
-                    if ($rotation !== 0 && function_exists('imagecreatefromjpeg')) {
-                        $res = match($mime) {
-                            'image/jpeg' => @imagecreatefromjpeg($photoPath),
-                            'image/png'  => @imagecreatefrompng($photoPath),
-                            'image/gif'  => @imagecreatefromgif($photoPath),
-                            'image/webp' => function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($photoPath) : false,
-                            default      => false,
-                        };
-
-                        if ($res) {
-                            $rotated = imagerotate($res, $rotation, 0);
-                            imagedestroy($res);
-                            ob_start();
-                            imagejpeg($rotated, null, 85);
-                            $imgData = ob_get_clean();
-                            imagedestroy($rotated);
-                            $mime = 'image/jpeg';
-                            $b64  = base64_encode($imgData);
-                            if (abs($rotation) === 90) { [$imgW, $imgH] = [$imgH, $imgW]; }
-                        } else {
-                            $b64 = base64_encode(file_get_contents($photoPath));
-                        }
-                    } else {
-                        $b64 = base64_encode(file_get_contents($photoPath));
-                    }
-
-                    $src        = "data:{$mime};base64,{$b64}";
-                    $photoClass = ($imgW >= $imgH) ? 'photo-img-landscape' : 'photo-img-portrait';
+                    $photoData  = $processPhoto($photoPath);
+                    $src        = $photoData['src'];
+                    $photoClass = $photoData['class'];
                 }
             @endphp
             @if($photoExists)
