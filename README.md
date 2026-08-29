@@ -6,16 +6,16 @@ Application web de gestion des **États des Lieux** (entrants et sortants) avec 
 
 ## Fonctionnalités
 
-- **Authentification Microsoft 365** — Connexion via Microsoft Entra ID (OAuth2)
-- **Création d'EDL** — Recherche de commune par département (API Géo gouv.fr)
-- **Formulaire multi-étapes** — Compteurs, clés, pièces (entrée, cuisine, séjour, WC, chambres, SDB), inventaire complet
+- **Authentification Microsoft 365** - Connexion via Microsoft Entra ID (OAuth2)
+- **Création d'EDL** - Recherche de commune par département (API Géo gouv.fr)
+- **Formulaire multi-étapes** - Compteurs, clés, pièces (entrée, cuisine, séjour, WC, chambres, SDB), inventaire complet
 - **Upload de photos** par pièce
-- **Signature numérique** — Canvas SignaturePad
-- **Génération PDF** — Automatique à la finalisation (DomPDF), couleur personnalisable
-- **Envoi par email** — PDF joint au locataire et/ou à l'agent
-- **Historique** — EDL avec pagination
-- **PWA** — Installable sur mobile et bureau
-- **Mode sombre** — Automatique ou manuel
+- **Signature numérique** - Canvas SignaturePad
+- **Génération PDF** - Automatique à la finalisation (DomPDF), couleur personnalisable
+- **Envoi par email** - PDF joint au locataire et/ou à l'agent
+- **Historique** - EDL avec pagination
+- **PWA** - Installable sur mobile et bureau
+- **Mode sombre** - Automatique ou manuel
 
 ---
 
@@ -181,7 +181,7 @@ services:
 
 L'image Docker est automatiquement construite et publiée sur **GitHub Container Registry** (`ghcr.io`) à chaque push sur `main` ou création d'un tag de version.
 
-Le workflow est défini dans `.github/workflows/docker.yml`. Aucune configuration supplémentaire n'est requise — le `GITHUB_TOKEN` est automatique.
+Le workflow est défini dans `.github/workflows/docker.yml`. Aucune configuration supplémentaire n'est requise - le `GITHUB_TOKEN` est automatique.
 
 Les tags générés :
 
@@ -227,4 +227,4 @@ npm run dev
 
 ## Licence
 
-Logiciel libre — adaptable à toute organisation.
+Logiciel libre - adaptable à toute organisation.

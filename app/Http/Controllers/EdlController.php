@@ -82,7 +82,13 @@ class EdlController extends Controller
     {
         $request->validate(['survey_data' => 'required|string']);
 
-        $edl->update(['survey_data' => json_decode($request->survey_data, true)]);
+        $surveyData = json_decode($request->survey_data, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return response()->json(['success' => false, 'message' => 'survey_data invalide (JSON malformé).'], 422);
+        }
+
+        $edl->update(['survey_data' => $surveyData]);
 
         return response()->json(['success' => true]);
     }
