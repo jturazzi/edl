@@ -19,9 +19,9 @@ return [
 
     'pdf_color' => env('APP_PDF_COLOR', '#33CCFF'),
 
-    'departement' => env('APP_DEPARTEMENT', '42'),
-
     'version' => env('APP_VERSION', '1.0.0'),
+
+    'version_check_token' => env('VERSION_CHECK_TOKEN'),
 
     /*
     |--------------------------------------------------------------------------

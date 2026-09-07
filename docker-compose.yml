@@ -12,21 +12,12 @@ services:
       APP_NAME: "Etat des lieux"
       APP_LOGO: ""
       APP_PDF_COLOR: "#33CCFF"
-      APP_DEPARTEMENT: "42"
       APP_ENV: production
       APP_KEY: ""
-      APP_DEBUG: "false"
       APP_URL: "http://localhost"
-      # Base de données
-      DB_CONNECTION: sqlite
-      # Session / Cache / Queue
-      SESSION_DRIVER: database
-      SESSION_LIFETIME: "120"
-      QUEUE_CONNECTION: database
-      CACHE_STORE: database
       # Mail
       MAIL_HOST: "127.0.0.1"
-      MAIL_PORT: "2525"
+      MAIL_PORT: "25"
       MAIL_USERNAME: ""
       MAIL_PASSWORD: ""
       MAIL_FROM_ADDRESS: "edl@votre-domaine.com"

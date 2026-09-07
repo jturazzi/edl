@@ -1,13 +1,32 @@
 # EDL
 
+[![Licence: MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](LICENSE)
+[![Docker Build](https://github.com/jturazzi/edl/actions/workflows/docker.yml/badge.svg)](https://github.com/jturazzi/edl/actions/workflows/docker.yml)
+[![PHP](https://img.shields.io/badge/PHP-%5E8.3-777bb4.svg)](composer.json)
+
 Application web de gestion des **États des Lieux** (entrants et sortants) avec authentification Microsoft 365.
+
+---
+
+## Sommaire
+
+- [Fonctionnalités](#fonctionnalités)
+- [Stack technique](#stack-technique)
+- [Démarrage rapide (Docker)](#démarrage-rapide-docker)
+- [Mise à jour](#mise-à-jour)
+- [Modifier la configuration sans rebuild](#modifier-la-configuration-sans-rebuild)
+- [Reverse Proxy](#reverse-proxy)
+- [CI/CD (GitHub Actions)](#cicd-github-actions)
+- [Configuration Microsoft Entra ID](#configuration-microsoft-entra-id)
+- [Développement local](#développement-local)
+- [Licence](#licence)
 
 ---
 
 ## Fonctionnalités
 
 - **Authentification Microsoft 365** - Connexion via Microsoft Entra ID (OAuth2)
-- **Création d'EDL** - Recherche de commune par département (API Géo gouv.fr)
+- **Création d'EDL** - Saisie libre de l'adresse et de la ville
 - **Formulaire multi-étapes** - Compteurs, clés, pièces (entrée, cuisine, séjour, WC, chambres, SDB), inventaire complet
 - **Upload de photos** par pièce
 - **Signature numérique** - Canvas SignaturePad
@@ -15,7 +34,6 @@ Application web de gestion des **États des Lieux** (entrants et sortants) avec 
 - **Envoi par email** - PDF joint au locataire et/ou à l'agent
 - **Historique** - EDL avec pagination
 - **PWA** - Installable sur mobile et bureau
-- **Mode sombre** - Automatique ou manuel
 
 ---
 
@@ -30,6 +48,7 @@ Application web de gestion des **États des Lieux** (entrants et sortants) avec 
 | Signature | signature_pad |
 | Serveur | FrankenPHP (Caddy) |
 | Base de données | SQLite |
+| Analyse statique | PHPStan (Larastan) |
 | Conteneur | Docker (build multi-stage) |
 
 ---
@@ -79,7 +98,6 @@ curl -o .env https://raw.githubusercontent.com/jturazzi/edl/main/.env.example
 | `APP_NAME` | Nom affiché dans toute l'application | `"Etat des lieux Compagnie"` |
 | `APP_LOGO` | URL HTTPS du logo (navbar, login, PDF) | `https://exemple.com/logo.png` |
 | `APP_PDF_COLOR` | Couleur principale des PDF (hex) | `#33CCFF` |
-| `APP_DEPARTEMENT` | Numéro de département pour la recherche de commune | `42` |
 | `APP_URL` | URL publique de l'application | `https://edl.exemple.com` |
 | `APP_KEY` | Clé de chiffrement Laravel (générer ci-dessous) | `base64:...` |
 | `MICROSOFT_CLIENT_ID` | ID de l'application Entra ID | `xxxxxxxx-xxxx-...` |
@@ -87,7 +105,7 @@ curl -o .env https://raw.githubusercontent.com/jturazzi/edl/main/.env.example
 | `MICROSOFT_REDIRECT_URI` | URL de callback OAuth | `https://edl.exemple.com/auth/microsoft/callback` |
 | `MICROSOFT_TENANT_ID` | ID du tenant Entra ID | `xxxxxxxx-xxxx-...` |
 | `MAIL_HOST` | Serveur SMTP | `smtp.exemple.com` |
-| `MAIL_PORT` | Port  | `25` |
+| `MAIL_PORT` | Port SMTP | `25` |
 | `MAIL_FROM_ADDRESS` | Adresse d'expédition des emails | `edl@exemple.com` |
 | `MAIL_FROM_NAME` | Nom d'expéditeur affiché dans les emails | `"EDL"` |
 
@@ -206,6 +224,11 @@ Les tags générés :
 
 ## Développement local
 
+### Prérequis
+
+- PHP 8.3+ avec Composer 2
+- Node.js 20+ avec npm
+
 ```bash
 git clone https://github.com/jturazzi/edl.git
 cd edl
@@ -223,8 +246,18 @@ php artisan serve &
 npm run dev
 ```
 
+### Analyse statique et audit des dépendances
+
+```bash
+composer analyse  # PHPStan (Larastan)
+composer audit     # Vulnérabilités connues des dépendances PHP
+npm audit          # Vulnérabilités connues des dépendances JS
+```
+
+Le script [update-composer-npm.sh](update-composer-npm.sh) met à jour les dépendances puis lance ces deux audits.
+
 ---
 
 ## Licence
 
-Logiciel libre - adaptable à toute organisation.
+[MIT](LICENSE)

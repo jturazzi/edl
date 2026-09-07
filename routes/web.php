@@ -5,7 +5,13 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\EdlController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\VersionCheckController;
 use Illuminate\Support\Facades\Route;
+
+// ─── Favicon (évite que le catch-all SPA la capture comme URL "intended") ─
+Route::get('/favicon.ico', fn () => redirect('/favicon.svg'));
+
+Route::get('/version-info', VersionCheckController::class);
 
 // ─── Authentification Microsoft 365 ───────────────────────────
 Route::get('/login',  [AuthController::class, 'login'])->name('login');

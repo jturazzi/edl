@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 class AdminController extends Controller
 {
     /**
-     * Informations système pour la page admin.
+     * Statistiques EDL pour la page admin.
      */
     public function info()
     {
@@ -26,47 +26,7 @@ class AdminController extends Controller
         $edlEnCours  = (int) $stats->edl_en_cours;
         $edlComplete = (int) $stats->edl_complete;
 
-        // Détection du serveur
-        $server = 'Inconnu';
-        if (isset($_SERVER['SERVER_SOFTWARE'])) {
-            $sw = $_SERVER['SERVER_SOFTWARE'];
-            if (stripos($sw, 'frankenphp') !== false) {
-                $server = 'FrankenPHP';
-            } elseif (stripos($sw, 'caddy') !== false) {
-                $server = 'Caddy';
-            } elseif (stripos($sw, 'nginx') !== false) {
-                $server = 'Nginx';
-            } elseif (stripos($sw, 'apache') !== false) {
-                $server = 'Apache';
-            } else {
-                $server = $sw;
-            }
-        } elseif (php_sapi_name() === 'frankenphp') {
-            $server = 'FrankenPHP';
-        }
-
         return response()->json([
-            'app' => [
-                'version'     => config('app.version', 'v1.0.0'),
-                'environment' => config('app.env'),
-                'debug'       => config('app.debug'),
-                'timezone'    => config('app.timezone'),
-                'url'         => config('app.url'),
-            ],
-            'php' => [
-                'version' => PHP_VERSION,
-                'sapi'    => php_sapi_name(),
-            ],
-            'laravel' => [
-                'version' => app()->version(),
-            ],
-            'server' => $server,
-            'database' => [
-                'driver'   => config('database.default'),
-                'database' => basename(config('database.connections.' . config('database.default') . '.database', '')),
-            ],
-            'cache'   => config('cache.default'),
-            'session' => config('session.driver'),
             'stats' => [
                 'edl_total'    => $edlTotal,
                 'edl_entrant'  => $edlEntrant,

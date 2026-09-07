@@ -6,7 +6,6 @@ import FormPage from '../pages/FormPage.vue'
 import SignaturePage from '../pages/SignaturePage.vue'
 import EdlPage from '../pages/EdlPage.vue'
 import HistoryPage from '../pages/HistoryPage.vue'
-import CguPage from '../pages/CguPage.vue'
 import AdminInfoPage from '../pages/AdminInfoPage.vue'
 
 const routes = [
@@ -17,13 +16,15 @@ const routes = [
     { path: '/edl/:id',                    name: 'confirmation',  component: EdlPage },
     { path: '/edl/:id/confirmation',       redirect: to => ({ name: 'confirmation', params: { id: to.params.id } }) },
     { path: '/historique',                 name: 'history',       component: HistoryPage },
-    { path: '/cgu',                        name: 'cgu',           component: CguPage },
-    { path: '/admin/info',                 name: 'admin.info',    component: AdminInfoPage },
+    { path: '/info',                       name: 'admin.info',    component: AdminInfoPage },
 ]
 
 const router = createRouter({
     history: createWebHistory(),
     routes,
+    scrollBehavior(to, from, savedPosition) {
+        return savedPosition || { top: 0 }
+    },
 })
 
 export default router
