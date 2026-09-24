@@ -14,6 +14,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $type
  * @property string|null $adresse
  * @property string|null $ville
+ * @property string|null $technicien_prenom
+ * @property string|null $technicien_nom
+ * @property string|null $technicien_email
  * @property array<array-key, mixed>|null $survey_data
  * @property string|null $signature
  * @property string|null $pdf_path
@@ -61,6 +64,9 @@ class Edl extends Model
         'type',
         'adresse',
         'ville',
+        'technicien_prenom',
+        'technicien_nom',
+        'technicien_email',
         'survey_data',
         'signature',
         'pdf_path',
@@ -121,6 +127,12 @@ class Edl extends Model
     /** Nom de l'agent ayant réalisé l'EDL */
     public function getAgentNameAttribute(): string
     {
+        $technicien = trim(($this->technicien_prenom ?? '') . ' ' . ($this->technicien_nom ?? ''));
+
+        if ($technicien !== '') {
+            return $technicien;
+        }
+
         return $this->user ? $this->user->full_name : 'Non renseigné';
     }
 }

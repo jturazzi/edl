@@ -15,8 +15,18 @@
         </router-link>
     </div>
 
+    <!-- Recherche -->
+    <div class="mb-5 relative">
+        <svg class="w-5 h-5 text-indigo-500 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/>
+        </svg>
+        <input type="search" v-model="search" class="field-input !pl-12 !py-3.5 !bg-white !border-2 !border-indigo-200 shadow-md shadow-indigo-100/70 placeholder:text-gray-400 hover:!border-indigo-300"
+            placeholder="Rechercher : adresse, ville, technicien, locataire, date (jj/mm/aaaa)…"
+            aria-label="Rechercher un EDL">
+    </div>
+
     <!-- Filtres catégories -->
-    <div v-if="!loading && categories.length > 0" class="mb-5 flex flex-wrap gap-2">
+    <div v-if="categories.length > 0" class="mb-5 flex flex-wrap gap-2">
         <button @click="filterCategory(null)"
             :class="[
                 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-semibold border-2 transition-all',
@@ -65,9 +75,9 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
             </svg>
         </div>
-        <p class="text-base font-semibold text-gray-600 mb-1">Aucun EDL enregistré</p>
-        <p class="text-sm text-gray-400 mb-5">Créez votre premier état des lieux.</p>
-        <router-link to="/" class="btn-primary inline-flex">
+        <p class="text-base font-semibold text-gray-600 mb-1">{{ search.trim() ? 'Aucun résultat' : 'Aucun EDL enregistré' }}</p>
+        <p class="text-sm text-gray-400 mb-5">{{ search.trim() ? 'Essayez avec d\'autres termes.' : 'Créez votre premier état des lieux.' }}</p>
+        <router-link v-if="!search.trim()" to="/" class="btn-primary inline-flex">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
             Commencer
         </router-link>
@@ -125,7 +135,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                         </svg>
-                        <span class="truncate">{{ edl.user ? (edl.user.firstname || '') + ' ' + (edl.user.lastname || '') : 'Non renseigné' }}</span>
+                        <span class="truncate">{{ edl.agent_name }}</span>
                     </div>
                 </div>
 
@@ -156,6 +166,11 @@
                             </svg>
                             Voir
                         </router-link>
+                        <button v-if="edl.type === 'entrant'" @click="askSortant(edl)"
+                            class="text-amber-700 bg-amber-50 hover:bg-amber-100 font-semibold py-2.5 px-3 rounded-xl text-sm transition min-h-[44px] flex items-center justify-center gap-1.5"
+                            title="Créer l'état des lieux sortant à partir de cet entrant">
+                            🚪 Sortant
+                        </button>
                         <a :href="`/edl/${edl.id}/pdf`" target="_blank"
                             class="text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 py-2.5 px-3 rounded-xl text-sm transition min-h-[44px] flex items-center justify-center"
                             aria-label="Télécharger le PDF">
@@ -189,6 +204,44 @@
             </button>
         </div>
     </template>
+
+    <!-- Modale création sortant -->
+    <Teleport to="body">
+        <div v-if="edlForSortant" class="fixed inset-0 z-50 flex items-center justify-center px-4"
+            @click.self="edlForSortant = null">
+            <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="edlForSortant = null"></div>
+            <form @submit.prevent="createSortant" class="relative bg-white rounded-2xl shadow-2xl shadow-black/20 max-w-md w-full p-6 fade-in-up">
+                <h2 class="text-base font-bold text-gray-900">Créer l'état des lieux sortant</h2>
+                <p class="mt-1 text-sm text-gray-500">
+                    <span class="font-semibold text-gray-700">{{ edlForSortant.adresse }}</span>, {{ edlForSortant.ville }}<br>
+                    Toutes les informations de l'entrant sont reprises. Indiquez le technicien en charge.
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Prénom <span class="text-red-500">*</span></label>
+                        <input type="text" v-model="tech.technicien_prenom" required class="field-input">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Nom <span class="text-red-500">*</span></label>
+                        <input type="text" v-model="tech.technicien_nom" required class="field-input">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Adresse e-mail <span class="text-red-500">*</span></label>
+                        <input type="email" v-model="tech.technicien_email" required class="field-input">
+                    </div>
+                </div>
+                <p v-if="sortantError" class="text-red-500 text-xs mt-3">{{ sortantError }}</p>
+                <div class="flex gap-3 mt-5">
+                    <button type="button" @click="edlForSortant = null"
+                        class="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-semibold text-sm hover:bg-gray-50 transition">Annuler</button>
+                    <button type="submit" :disabled="sortantLoading"
+                        class="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm transition disabled:opacity-60">
+                        {{ sortantLoading ? 'Création…' : 'Créer le sortant' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </Teleport>
 
     <!-- Modale suppression -->
     <Teleport to="body">
@@ -229,8 +282,12 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, watch, inject } from 'vue'
+import { useRouter } from 'vue-router'
 import axios from 'axios'
+
+const router = useRouter()
+const user = inject('user', ref(null))
 
 const loading = ref(true)
 const edls = ref([])
@@ -240,6 +297,40 @@ const pagination = reactive({
 })
 const categories = ref([])
 const activeCategoryId = ref(null)
+const search = ref('')
+
+let searchTimer = null
+watch(search, () => {
+    clearTimeout(searchTimer)
+    searchTimer = setTimeout(() => loadPage(1), 300)
+})
+
+// Création d'un sortant depuis un entrant
+const edlForSortant = ref(null)
+const sortantLoading = ref(false)
+const sortantError = ref('')
+const tech = reactive({ technicien_prenom: '', technicien_nom: '', technicien_email: '' })
+
+function askSortant(edl) {
+    tech.technicien_prenom = user.value?.firstname || ''
+    tech.technicien_nom = user.value?.lastname || ''
+    tech.technicien_email = user.value?.email || ''
+    sortantError.value = ''
+    edlForSortant.value = edl
+}
+
+async function createSortant() {
+    sortantLoading.value = true
+    sortantError.value = ''
+    try {
+        const { data } = await axios.post(`/api/edls/${edlForSortant.value.id}/sortant`, tech)
+        router.push({ name: 'survey', params: { id: data.id } })
+    } catch (e) {
+        sortantError.value = e.response?.data?.message || 'Erreur lors de la création.'
+    } finally {
+        sortantLoading.value = false
+    }
+}
 
 // Suppression
 const edlToDelete = ref(null)
@@ -268,6 +359,7 @@ async function loadPage(page = 1) {
     try {
         const params = { page }
         if (activeCategoryId.value !== null) params.category_id = activeCategoryId.value
+        if (search.value.trim()) params.q = search.value.trim()
         const { data } = await axios.get('/api/edls', { params })
         edls.value = data.data
         pagination.currentPage = data.current_page

@@ -25,6 +25,7 @@ Route::middleware('auth')->prefix('api')->group(function () {
     Route::get('/edls',                [EdlController::class, 'apiIndex']);
     Route::post('/edls',               [EdlController::class, 'apiStore']);
     Route::get('/edls/{edl}',          [EdlController::class, 'apiShow']);
+    Route::post('/edls/{edl}/sortant', [EdlController::class, 'apiCreateSortant']);
     Route::post('/edls/{edl}/survey',  [EdlController::class, 'saveSurvey']);
     Route::post('/edls/{edl}/photos',  [EdlController::class, 'uploadPhoto']);
     Route::get('/edls/{edl}/photos',   [EdlController::class, 'listPhotos']);

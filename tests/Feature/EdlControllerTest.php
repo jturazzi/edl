@@ -62,6 +62,9 @@ class EdlControllerTest extends TestCase
         $user = $this->authUser();
 
         $response = $this->postJson('/api/edls', [
+            'technicien_prenom' => 'Jean',
+            'technicien_nom'    => 'DUPONT',
+            'technicien_email'  => 'jean@example.com',
             'adresse' => '1 rue de Paris',
             'ville'   => 'Paris',
             'type'    => 'entrant',
@@ -84,7 +87,7 @@ class EdlControllerTest extends TestCase
         $response = $this->postJson('/api/edls', []);
 
         $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['adresse', 'ville', 'type']);
+        $response->assertJsonValidationErrors(['adresse', 'ville', 'type', 'technicien_prenom', 'technicien_nom', 'technicien_email']);
     }
 
     public function test_api_store_rejects_invalid_type(): void
@@ -92,6 +95,9 @@ class EdlControllerTest extends TestCase
         $this->authUser();
 
         $response = $this->postJson('/api/edls', [
+            'technicien_prenom' => 'Jean',
+            'technicien_nom'    => 'DUPONT',
+            'technicien_email'  => 'jean@example.com',
             'adresse' => '1 rue de Paris',
             'ville'   => 'Paris',
             'type'    => 'invalide',
@@ -106,6 +112,9 @@ class EdlControllerTest extends TestCase
         $this->authUser();
 
         $response = $this->postJson('/api/edls', [
+            'technicien_prenom' => 'Jean',
+            'technicien_nom'    => 'DUPONT',
+            'technicien_email'  => 'jean@example.com',
             'adresse'         => '1 rue de Paris',
             'ville'           => 'Paris',
             'type'            => 'entrant',
@@ -121,6 +130,9 @@ class EdlControllerTest extends TestCase
         $this->authUser();
 
         $response = $this->postJson('/api/edls', [
+            'technicien_prenom' => 'Jean',
+            'technicien_nom'    => 'DUPONT',
+            'technicien_email'  => 'jean@example.com',
             'adresse'     => '1 rue de Paris',
             'ville'       => 'Paris',
             'type'        => 'entrant',
@@ -406,5 +418,38 @@ class EdlControllerTest extends TestCase
             'entity_type' => 'edl',
             'entity_id'   => $edl->id,
         ]);
+    }
+
+    public function test_api_index_search_filters_by_text_technician_and_date(): void
+    {
+        $this->authUser();
+        Edl::factory()->create(['adresse' => '1 rue Alpha', 'ville' => 'Nantes', 'technicien_nom' => 'MARTIN', 'locataire_nom' => 'DURAND', 'date_edl' => '2026-03-15 10:00:00']);
+        Edl::factory()->create(['adresse' => '2 rue Beta', 'ville' => 'Lyon', 'technicien_nom' => 'BERNARD', 'locataire_nom' => 'PETIT', 'date_edl' => '2026-04-20 10:00:00']);
+
+        foreach (['alpha', 'nantes', 'martin', 'durand', '15/03/2026', '03/2026'] as $q) {
+            $r = $this->getJson('/api/edls?q=' . urlencode($q));
+            $this->assertCount(1, $r->json('data'), $q);
+            $this->assertSame('1 rue Alpha', $r->json('data.0.adresse'));
+        }
+        $this->assertCount(2, $this->getJson('/api/edls?q=rue')->json('data'));
+        $this->assertCount(0, $this->getJson('/api/edls?q=zzz')->json('data'));
+    }
+
+    public function test_api_create_sortant_copies_entrant_data(): void
+    {
+        $user = $this->authUser();
+        $entrant = Edl::factory()->create(['type' => 'entrant', 'adresse' => '1 rue Alpha', 'locataire_nom' => 'DURAND', 'survey_data' => ['a' => 'b'], 'status' => 'complete']);
+
+        $r = $this->postJson("/api/edls/{$entrant->id}/sortant", [
+            'technicien_prenom' => 'Jean', 'technicien_nom' => 'DUPONT', 'technicien_email' => 'jean@example.com',
+        ]);
+
+        $r->assertCreated();
+        $this->assertDatabaseHas('edls', ['id' => $r->json('id'), 'type' => 'sortant', 'adresse' => '1 rue Alpha', 'locataire_nom' => 'DURAND', 'status' => 'en_cours', 'technicien_nom' => 'DUPONT', 'user_id' => $user->id]);
+        $this->assertSame(['a' => 'b'], Edl::find($r->json('id'))->survey_data);
+
+        $this->postJson("/api/edls/{$r->json('id')}/sortant", [
+            'technicien_prenom' => 'Jean', 'technicien_nom' => 'DUPONT', 'technicien_email' => 'jean@example.com',
+        ])->assertStatus(422);
     }
 }

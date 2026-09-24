@@ -45,6 +45,36 @@
             </div>
         </div>
 
+        <!-- Technicien -->
+        <div class="card p-5 sm:p-6">
+            <h2 class="flex items-center gap-2.5 text-xs font-bold text-emerald-600 uppercase tracking-widest mb-5">
+                <span class="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-emerald-100" aria-hidden="true">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                </span>
+                Technicien
+            </h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Prénom <span class="text-red-500">*</span></label>
+                    <input type="text" v-model="form.technicien_prenom" required class="field-input"
+                        :class="{ '!border-red-400 !ring-red-300/30': errors.technicien_prenom }">
+                    <p v-if="errors.technicien_prenom" class="text-red-500 text-xs mt-1.5">{{ errors.technicien_prenom[0] }}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Nom <span class="text-red-500">*</span></label>
+                    <input type="text" v-model="form.technicien_nom" required class="field-input"
+                        :class="{ '!border-red-400 !ring-red-300/30': errors.technicien_nom }">
+                    <p v-if="errors.technicien_nom" class="text-red-500 text-xs mt-1.5">{{ errors.technicien_nom[0] }}</p>
+                </div>
+                <div class="sm:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Adresse e-mail <span class="text-red-500">*</span></label>
+                    <input type="email" v-model="form.technicien_email" required class="field-input"
+                        :class="{ '!border-red-400 !ring-red-300/30': errors.technicien_email }">
+                    <p v-if="errors.technicien_email" class="text-red-500 text-xs mt-1.5">{{ errors.technicien_email[0] }}</p>
+                </div>
+            </div>
+        </div>
+
         <!-- Informations locataire -->
         <div class="card p-5 sm:p-6">
             <h2 class="flex items-center gap-2.5 text-xs font-bold text-violet-600 uppercase tracking-widest mb-5">
@@ -143,7 +173,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, inject, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 
@@ -152,12 +182,26 @@ const router = useRouter()
 const form = reactive({
     adresse: '',
     ville: '',
+    technicien_prenom: '',
+    technicien_nom: '',
+    technicien_email: '',
     type: '',
     locataire_nom: '',
     locataire_prenom: '',
     locataire_email: '',
     category_id: null,
 })
+
+const user = inject('user', ref(null))
+
+// Pré-remplissage avec l'utilisateur connecté
+function prefillTechnicien(u) {
+    if (!u) return
+    form.technicien_prenom ||= u.firstname || ''
+    form.technicien_nom ||= u.lastname || ''
+    form.technicien_email ||= u.email || ''
+}
+watch(user, prefillTechnicien, { immediate: true })
 
 const categories = ref([])
 

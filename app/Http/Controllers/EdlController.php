@@ -29,9 +29,46 @@ class EdlController extends Controller
             $query->where('category_id', $request->category_id);
         }
 
+        foreach (preg_split('/\s+/', trim((string) $request->query('q', '')), -1, PREG_SPLIT_NO_EMPTY) as $term) {
+            $this->applySearchTerm($query, $term);
+        }
+
         $edls = $query->paginate(20);
 
         return response()->json($edls);
+    }
+
+    /**
+     * Filtre la requête : chaque mot doit correspondre à l'adresse, la ville,
+     * le technicien, le locataire ou la date de l'EDL.
+     */
+    private function applySearchTerm($query, string $term): void
+    {
+        $like = '%' . addcslashes($term, '%_\\') . '%';
+
+        $query->where(function ($q) use ($like, $term) {
+            foreach (['adresse', 'ville', 'technicien_prenom', 'technicien_nom', 'technicien_email', 'locataire_prenom', 'locataire_nom'] as $col) {
+                $q->orWhere($col, 'like', $like);
+            }
+
+            $q->orWhereHas('user', fn ($u) => $u->where('firstname', 'like', $like)->orWhere('lastname', 'like', $like));
+
+            // Date : jj/mm/aaaa, mm/aaaa, aaaa ou aaaa-mm-jj
+            if (preg_match('#^(?:(\d{1,2})/)?(?:(\d{1,2})/)?(\d{4})$#', $term, $m)) {
+                [$day, $month, $year] = $m[2] !== '' ? [$m[1], $m[2], $m[3]] : ['', $m[1], $m[3]];
+                $q->orWhere(function ($d) use ($day, $month, $year) {
+                    $d->whereYear('date_edl', $year);
+                    if ($month !== '') {
+                        $d->whereMonth('date_edl', (int) $month);
+                    }
+                    if ($day !== '') {
+                        $d->whereDay('date_edl', (int) $day);
+                    }
+                });
+            } elseif (preg_match('#^\d{4}-\d{2}(-\d{2})?$#', $term)) {
+                $q->orWhere('date_edl', 'like', $term . '%');
+            }
+        });
     }
 
     /**
@@ -42,6 +79,9 @@ class EdlController extends Controller
         $request->validate([
             'adresse'          => 'required|string|max:255',
             'ville'            => 'required|string|max:100',
+            'technicien_prenom' => 'required|string|max:100',
+            'technicien_nom'   => 'required|string|max:100',
+            'technicien_email' => 'required|email|max:150',
             'type'             => 'required|in:entrant,sortant',
             'locataire_nom'    => 'nullable|string|max:100',
             'locataire_prenom' => 'nullable|string|max:100',
@@ -53,6 +93,9 @@ class EdlController extends Controller
             'type'             => $request->type,
             'adresse'          => $request->adresse,
             'ville'            => $request->ville,
+            'technicien_prenom' => $request->technicien_prenom,
+            'technicien_nom'   => $request->technicien_nom,
+            'technicien_email' => $request->technicien_email,
             'locataire_nom'    => $request->locataire_nom,
             'locataire_prenom' => $request->locataire_prenom,
             'locataire_email'  => $request->locataire_email,
@@ -63,6 +106,40 @@ class EdlController extends Controller
         ]);
 
         return response()->json($edl, 201);
+    }
+
+    /**
+     * Crée l'EDL sortant à partir d'un entrant : reprend adresse, locataire,
+     * catégorie et données saisies ; seul le technicien est à renseigner.
+     */
+    public function apiCreateSortant(Request $request, Edl $edl)
+    {
+        abort_unless($edl->type === 'entrant', 422, "Seul un EDL entrant peut servir de base à un sortant.");
+
+        $request->validate([
+            'technicien_prenom' => 'required|string|max:100',
+            'technicien_nom'    => 'required|string|max:100',
+            'technicien_email'  => 'required|email|max:150',
+        ]);
+
+        $sortant = Edl::create([
+            'type'              => 'sortant',
+            'adresse'           => $edl->adresse,
+            'ville'             => $edl->ville,
+            'locataire_nom'     => $edl->locataire_nom,
+            'locataire_prenom'  => $edl->locataire_prenom,
+            'locataire_email'   => $edl->locataire_email,
+            'category_id'       => $edl->category_id,
+            'survey_data'       => $edl->survey_data,
+            'technicien_prenom' => $request->technicien_prenom,
+            'technicien_nom'    => $request->technicien_nom,
+            'technicien_email'  => $request->technicien_email,
+            'date_edl'          => now(),
+            'status'            => 'en_cours',
+            'user_id'           => auth()->id(),
+        ]);
+
+        return response()->json($sortant, 201);
     }
 
     /**
