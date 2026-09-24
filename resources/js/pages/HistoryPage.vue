@@ -207,10 +207,10 @@
 
     <!-- Modale création sortant -->
     <Teleport to="body">
-        <div v-if="edlForSortant" class="fixed inset-0 z-50 flex items-center justify-center px-4"
+        <div v-if="edlForSortant" class="fixed inset-0 z-50 overflow-y-auto overscroll-contain bg-black/40"
             @click.self="edlForSortant = null">
-            <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="edlForSortant = null"></div>
-            <form @submit.prevent="createSortant" class="relative bg-white rounded-2xl shadow-2xl shadow-black/20 max-w-md w-full p-6 fade-in-up">
+            <div class="min-h-full flex items-start sm:items-center justify-center p-4 pointer-events-none">
+            <form @submit.prevent="createSortant" class="pointer-events-auto bg-white rounded-2xl shadow-2xl shadow-black/20 max-w-md w-full p-6 mt-8 sm:mt-0">
                 <h2 class="text-base font-bold text-gray-900">Créer l'état des lieux sortant</h2>
                 <p class="mt-1 text-sm text-gray-500">
                     <span class="font-semibold text-gray-700">{{ edlForSortant.adresse }}</span>, {{ edlForSortant.ville }}<br>
@@ -240,6 +240,7 @@
                     </button>
                 </div>
             </form>
+            </div>
         </div>
     </Teleport>
 
@@ -282,7 +283,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, watch, inject } from 'vue'
+import { ref, reactive, onMounted, onBeforeUnmount, watch, inject } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 
@@ -310,6 +311,11 @@ const edlForSortant = ref(null)
 const sortantLoading = ref(false)
 const sortantError = ref('')
 const tech = reactive({ technicien_prenom: '', technicien_nom: '', technicien_email: '' })
+
+watch(() => edlForSortant.value, (open) => {
+    document.body.style.overflow = open ? 'hidden' : ''
+})
+onBeforeUnmount(() => { document.body.style.overflow = '' })
 
 function askSortant(edl) {
     tech.technicien_prenom = user.value?.firstname || ''
