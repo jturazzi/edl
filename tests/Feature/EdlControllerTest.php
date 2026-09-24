@@ -452,4 +452,17 @@ class EdlControllerTest extends TestCase
             'technicien_prenom' => 'Jean', 'technicien_nom' => 'DUPONT', 'technicien_email' => 'jean@example.com',
         ])->assertStatus(422);
     }
+
+    public function test_numero_matches_id_and_is_searchable(): void
+    {
+        $this->authUser();
+        $a = Edl::factory()->create();
+        Edl::factory()->create();
+
+        $this->assertSame('EDL-' . str_pad((string) $a->id, 6, '0', STR_PAD_LEFT), $a->numero);
+        $this->assertSame($a->numero, $this->getJson("/api/edls/{$a->id}")->json('numero'));
+        $data = $this->getJson('/api/edls?q=' . $a->numero)->json('data');
+        $this->assertCount(1, $data);
+        $this->assertSame($a->id, $data[0]['id']);
+    }
 }

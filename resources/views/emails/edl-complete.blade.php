@@ -14,6 +14,7 @@
 
     <p><strong>Récapitulatif :</strong></p>
     <ul>
+        <li>N° EDL : {{ $edl->numero }}</li>
         <li>Type : {{ $edl->type_label }}</li>
         @if($edl->locataire_full_name)
         <li>Locataire : {{ $edl->locataire_full_name }}</li>

@@ -9,6 +9,7 @@
         <h1 class="text-xl sm:text-2xl font-extrabold text-gray-900 leading-tight truncate">{{ edl.adresse }}</h1>
         <p class="text-base sm:text-lg font-semibold text-gray-500 mt-0.5">{{ edl.ville }}</p>
         <div class="mt-2 flex flex-wrap items-center gap-2">
+            <span class="text-sm font-mono font-semibold text-gray-500">{{ edl.numero }}</span>
             <span class="inline-flex items-center rounded-full px-3 py-1 text-sm font-bold"
                 :class="edl.type === 'entrant' ? 'badge-entrant' : 'badge-sortant'">
                 {{ edl.type_label }}

@@ -26,7 +26,7 @@ class EdlCompleteMail extends Mailable
         $appName = config('app.name');
 
         return new Envelope(
-            subject: "{$appName} - {$this->edl->adresse}, {$this->edl->ville}",
+            subject: "{$appName} - {$this->edl->numero} - {$this->edl->adresse}, {$this->edl->ville}",
         );
     }
 

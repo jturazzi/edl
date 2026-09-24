@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>État des lieux</title>
+<title>État des lieux {{ $edl->numero }}</title>
 <style>
     /* ── Base ─────────────────────────────────────────────────── */
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -388,7 +388,7 @@
 {{-- FOOTER (déclaré avant le contenu pour DomPDF) --}}
 <div class="footer">
     <table><tr>
-        <td class="footer-left">{{ $edl->type === 'entrant' ? 'EDL Entrant' : 'EDL Sortant' }} &mdash; {{ $edl->adresse }}, {{ $edl->ville }}</td>
+        <td class="footer-left">{{ $edl->numero }} &mdash; {{ $edl->type === 'entrant' ? 'EDL Entrant' : 'EDL Sortant' }} &mdash; {{ $edl->adresse }}, {{ $edl->ville }}</td>
         <td class="footer-right"></td>
     </tr></table>
 </div>
@@ -404,7 +404,7 @@
             @endif
         </td>
         <td class="header-info-td">
-            <div class="header-type">{{ $edl->type === 'entrant' ? 'État des lieux entrant' : 'État des lieux sortant' }}</div>
+            <div class="header-type">{{ $edl->type === 'entrant' ? 'État des lieux entrant' : 'État des lieux sortant' }} - N° {{ $edl->numero }}</div>
             <div class="header-address">{{ $edl->adresse }}, {{ $edl->ville }}</div>
         </td>
     </tr>
@@ -412,15 +412,19 @@
         <td class="header-info-band-td" colspan="2">
             <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
-                    <td style="width:22%;padding-right:12px;vertical-align:top;">
+                    <td style="width:14%;padding-right:12px;vertical-align:top;">
+                        <div class="hib-label">N° EDL</div>
+                        <div class="hib-value">{{ $edl->numero }}</div>
+                    </td>
+                    <td style="width:20%;padding-right:12px;vertical-align:top;">
                         <div class="hib-label">Locataire</div>
                         <div class="hib-value">{{ $edl->locataire_full_name ?: '—' }}</div>
                     </td>
-                    <td style="width:26%;padding-right:12px;vertical-align:top;">
+                    <td style="width:22%;padding-right:12px;vertical-align:top;">
                         <div class="hib-label">Email</div>
                         <div class="hib-value">{{ $edl->locataire_email ?: '—' }}</div>
                     </td>
-                    <td style="width:17%;padding-right:12px;vertical-align:top;">
+                    <td style="width:12%;padding-right:12px;vertical-align:top;">
                         <div class="hib-label">Date EDL</div>
                         <div class="hib-value">
                             @if($edl->date_edl)
@@ -436,7 +440,7 @@
                         <div class="hib-label">Réalisé par</div>
                         <div class="hib-value">{{ $edl->agent_name }}</div>
                     </td>
-                    <td style="width:17%;vertical-align:top;">
+                    <td style="width:14%;vertical-align:top;">
                         <div class="hib-label">Généré le</div>
                         <div class="hib-value">{{ date('d/m/Y H:i') }}</div>
                     </td>

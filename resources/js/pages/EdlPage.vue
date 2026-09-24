@@ -19,6 +19,9 @@
     <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-6 mb-5">
         <h2 class="text-xs font-bold uppercase tracking-widest text-indigo-500 mb-4">Récapitulatif</h2>
         <dl class="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
+            <dt class="text-gray-500 font-medium">N° EDL</dt>
+            <dd class="font-semibold text-gray-900 font-mono">{{ edl.numero }}</dd>
+
             <dt class="text-gray-500 font-medium">Adresse</dt>
             <dd class="font-semibold text-gray-900">{{ edl.adresse }}, {{ edl.ville }}</dd>
 

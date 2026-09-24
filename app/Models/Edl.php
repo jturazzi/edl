@@ -30,6 +30,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read \App\Models\Category|null $category
  * @property-read string $adresse_complete
  * @property-read string $agent_name
+ * @property-read string $numero
  * @property-read string $locataire_full_name
  * @property-read string $type_label
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\EdlPhoto> $photos
@@ -84,7 +85,7 @@ class Edl extends Model
         'date_edl'    => 'datetime',
     ];
 
-    protected $appends = ['type_label', 'locataire_full_name', 'adresse_complete', 'agent_name'];
+    protected $appends = ['type_label', 'locataire_full_name', 'adresse_complete', 'agent_name', 'numero'];
 
     public function category(): BelongsTo
     {
@@ -125,6 +126,14 @@ class Edl extends Model
     }
 
     /** Nom de l'agent ayant réalisé l'EDL */
+    /**
+     * Numéro d'EDL affiché partout (PDF, e-mail, historique) : dérivé de l'id en base.
+     */
+    public function getNumeroAttribute(): string
+    {
+        return 'EDL-' . str_pad((string) $this->id, 6, '0', STR_PAD_LEFT);
+    }
+
     public function getAgentNameAttribute(): string
     {
         $technicien = trim(($this->technicien_prenom ?? '') . ' ' . ($this->technicien_nom ?? ''));

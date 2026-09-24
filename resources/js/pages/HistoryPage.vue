@@ -21,7 +21,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/>
         </svg>
         <input type="search" v-model="search" class="field-input !pl-12 !py-3.5 !bg-white !border-2 !border-indigo-200 shadow-md shadow-indigo-100/70 placeholder:text-gray-400 hover:!border-indigo-300"
-            placeholder="Rechercher : adresse, ville, technicien, locataire, date (jj/mm/aaaa)…"
+            placeholder="Rechercher : n° EDL, adresse, ville, technicien, locataire, date (jj/mm/aaaa)…"
             aria-label="Rechercher un EDL">
     </div>
 
@@ -93,6 +93,7 @@
                 <div class="p-4 border-b border-gray-100/80">
                     <div class="flex items-start justify-between gap-2 mb-2.5">
                         <div class="flex items-center gap-1.5 flex-wrap">
+                            <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-mono font-semibold bg-gray-100 text-gray-600">{{ edl.numero }}</span>
                             <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold"
                                 :class="edl.type === 'entrant' ? 'badge-entrant' : 'badge-sortant'">
                                 {{ edl.type === 'entrant' ? '🔑 Entrant' : '🚪 Sortant' }}

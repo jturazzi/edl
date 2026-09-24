@@ -51,6 +51,11 @@ class EdlController extends Controller
                 $q->orWhere($col, 'like', $like);
             }
 
+            // N° EDL : « EDL-000123 », « 000123 » ou « 123 » (= id en base)
+            if (preg_match('/^(?:EDL-?)?(\d+)$/i', $term, $m) && strlen($m[1]) <= 9) {
+                $q->orWhere('id', (int) $m[1]);
+            }
+
             $q->orWhereHas('user', fn ($u) => $u->where('firstname', 'like', $like)->orWhere('lastname', 'like', $like));
 
             // Date : jj/mm/aaaa, mm/aaaa, aaaa ou aaaa-mm-jj
