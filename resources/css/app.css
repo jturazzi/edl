@@ -1,0 +1,155 @@
+/* Quasar (CSS précompilé) dans sa propre couche : les utilitaires Tailwind (grille, espacements) l'emportent */
+@layer theme, override, quasar, app, utilities;
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'quasar/dist/quasar.css' layer(quasar);
+@import 'quasar/dist/quasar.addon.css' layer(quasar);
+@import 'tailwindcss/utilities.css' layer(utilities);
+@import './dark.css';
+
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+@source '../**/*.vue';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+body {
+    -webkit-text-size-adjust: 100%;
+    font-family: var(--font-sans);
+    background: #f4f7fb;
+    color: #1e2a44;
+}
+.q-btn, .q-field { font-family: inherit; }
+button, a, [role="button"] { touch-action: manipulation; }
+
+/* Signature pad */
+#signature-canvas,
+.signature-canvas {
+    touch-action: none;
+    border: 2px dashed #cbd5e1;
+    border-radius: 12px;
+    background: #fff;
+    cursor: crosshair;
+    width: 100%;
+    display: block;
+}
+
+/* Textes gris de Quasar : leur `!important` (couche quasar) ne se surcharge que depuis une couche déclarée avant elle */
+@layer override {
+    .text-grey-6, .text-grey-7 { color: #64748b !important; }
+    .text-grey-9 { color: #0f172a !important; }
+}
+
+/* Quasar force `flex-wrap: wrap` sur `.flex` : on revient au comportement Tailwind (nowrap par défaut) */
+@layer quasar {
+    .flex { flex-wrap: nowrap; }
+}
+
+/* Tailwind `.inline` (display:inline) écrase le modificateur Quasar `.row.inline` (inline-flex) :
+   on remet le comportement Quasar pour ses composants (chips, cases à cocher…) */
+@layer utilities {
+    .row.inline, .column.inline, .flex.inline { display: inline-flex; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   DESIGN SaaS (par-dessus Quasar, couche `app`)
+   ═══════════════════════════════════════════════════════════════════ */
+@layer app {
+    :root {
+        --app-border: #e5e7eb;
+        --app-radius: 12px;
+        --app-radius-sm: 8px;
+        --app-shadow: 0 1px 2px rgba(16, 24, 40, .04);
+    }
+
+    body { font-size: 14px; background: #f8fafc; color: #0f172a; }
+    body, .q-btn, .q-field, .q-item, .q-chip, .q-banner, .q-table, .q-card, .q-dialog { font-family: var(--font-sans); }
+    h1, h2, h3, .text-h4, .text-h5, .text-h6, .text-subtitle1 { color: #0f172a; letter-spacing: -0.015em; }
+    .text-h5 { font-size: 1.5rem; line-height: 2rem; font-weight: 600; }
+    .text-h6 { font-size: 1.05rem; line-height: 1.5rem; font-weight: 600; }
+
+    /* Cartes : bordure fine, ombre minimale */
+    .q-card { border-radius: var(--app-radius); box-shadow: var(--app-shadow); border: 1px solid var(--app-border); }
+    .q-card--bordered { border: 1px solid var(--app-border); }
+    .q-card.hover\:shadow-md:hover { border-color: #cbd5e1; box-shadow: 0 4px 12px rgba(16, 24, 40, .06); }
+    .q-dialog__inner > .q-card { border-radius: 16px; box-shadow: 0 20px 48px rgba(16, 24, 40, .18); }
+
+    /* Boutons */
+    .q-btn { border-radius: var(--app-radius-sm); font-weight: 500; letter-spacing: 0; }
+    .q-btn--round { border-radius: 50%; }
+    .q-btn__content { flex-wrap: nowrap; }
+    .q-btn--outline:before { border-color: #cbd5e1; border-radius: inherit; }
+    .q-btn--outline.text-primary:before, .q-btn--outline.text-negative:before { border-color: currentColor; opacity: .5; }
+    .q-btn-group { border-radius: var(--app-radius-sm); overflow: hidden; box-shadow: none; }
+    .q-btn-group .q-btn { border-radius: 0; box-shadow: none; }
+
+    /* Champs */
+    .q-field--outlined .q-field__control { border-radius: var(--app-radius-sm); background: #fff; }
+    .q-field--outlined .q-field__control:before { border-color: #d5dbe5; }
+    .q-field--outlined:hover .q-field__control:before { border-color: #94a3b8; }
+    .q-field--outlined.q-field--focused .q-field__control:after { border-width: 2px; }
+    .q-field__label { color: #64748b; }
+
+    .q-banner { border-radius: var(--app-radius-sm); }
+    .q-markup-table, .q-table__container { border-radius: var(--app-radius); box-shadow: none; }
+    .q-item { border-radius: var(--app-radius-sm); }
+    .q-list--separator > .q-item, .q-list--separator > .q-item-type { border-radius: 0; }
+
+    /* Barre latérale */
+    .app-sidebar { background: #fff; border-right: 1px solid var(--app-border); }
+    .app-sidebar .side-link {
+        display: flex; align-items: center; gap: 10px;
+        padding: 8px 12px; border-radius: var(--app-radius-sm);
+        color: #475569; font-weight: 500; text-decoration: none; cursor: pointer;
+        transition: background .12s, color .12s;
+    }
+    .app-sidebar .side-link:hover { background: #f1f5f9; color: #0f172a; }
+    .app-sidebar .side-link.is-active { background: #eff6ff; color: #1d4ed8; }
+    .app-sidebar .side-link .q-icon { font-size: 20px; }
+    .app-topbar { background: #fff; color: #0f172a; border-bottom: 1px solid var(--app-border); }
+
+    .signature-canvas { border-radius: var(--app-radius); }
+
+    /* Légende de photo dans la visionneuse sombre */
+    .photo-caption .q-field__control { background: rgba(255, 255, 255, .08); }
+    .photo-caption .q-field__control:before { border-color: rgba(255, 255, 255, .25); }
+
+    /* Impression du bilan des retenues : seule la zone .print-area reste visible */
+    .print-only { display: none; }
+    @media print {
+        body.printing-bilan { background: #fff; }
+        body.printing-bilan .q-drawer, body.printing-bilan .q-header, body.printing-bilan .no-print { display: none !important; }
+        body.printing-bilan .q-page-container, body.printing-bilan .q-layout { padding: 0 !important; }
+        body.printing-bilan .q-drawer-container { display: none !important; }
+        body.printing-bilan .print-only { display: block; }
+        body.printing-bilan .q-card { border: 0; box-shadow: none; }
+        body.printing-bilan .q-field--outlined .q-field__control:before { border-color: transparent; }
+    }
+
+    /* ── Accessibilité ─────────────────────────────────────── */
+    /* Lien d'évitement : visible uniquement au clavier */
+    .skip-link {
+        position: fixed; left: 12px; top: -60px; z-index: 10000;
+        padding: 10px 16px; border-radius: 8px; background: #1d4ed8; color: #fff;
+        font-weight: 600; text-decoration: none; transition: top .12s;
+    }
+    .skip-link:focus { top: 12px; }
+
+    /* Focus clavier bien visible sur tous les éléments interactifs */
+    :focus-visible { outline: 3px solid #1d4ed8; outline-offset: 2px; }
+    .q-btn:focus-visible, .q-item:focus-visible { outline: 3px solid #1d4ed8; outline-offset: 2px; }
+    main:focus { outline: none; }
+    .signature-canvas:focus-visible { outline: 3px solid #1d4ed8; }
+
+    /* Contraste : les gris clairs de Quasar (≈2,7:1) passent à un gris lisible (≥4,5:1) */
+    .text-slate-400 { color: #64748b; }
+    ::placeholder { color: #64748b; } /* l'opacité reste gérée par Quasar : le texte d'exemple n'apparaît qu'au focus */
+
+    /* Utilisateurs sensibles aux animations */
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+    }
+}

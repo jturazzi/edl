@@ -1,0 +1,41 @@
+services:
+  edl:
+    container_name: edl
+    image: ghcr.io/jturazzi/edl:latest
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - storage-data:/var/www/html/storage
+    environment:
+      # Application
+      APP_NAME: "Etat des lieux"
+      APP_VERSION: "1.0.0"
+      APP_LOGO: ""
+      APP_PDF_COLOR: "#33CCFF"
+      APP_ENV: production
+      APP_KEY: ""
+      APP_URL: "http://localhost"
+      # Mail
+      MAIL_HOST: "127.0.0.1"
+      MAIL_PORT: "25"
+      MAIL_USERNAME: ""
+      MAIL_PASSWORD: ""
+      MAIL_FROM_ADDRESS: "edl@votre-domaine.com"
+      MAIL_FROM_NAME: "Etat des lieux"
+      # Microsoft Entra ID
+      MICROSOFT_CLIENT_ID: ""
+      MICROSOFT_CLIENT_SECRET: ""
+      MICROSOFT_REDIRECT_URI: ""
+      MICROSOFT_TENANT_ID: ""
+    command: ["frankenphp", "run"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/up"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  storage-data:
+    driver: local
