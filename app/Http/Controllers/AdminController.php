@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Edl;
+use App\Models\User;
+use App\Services\ActivityLogger;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class AdminController extends Controller
 {
@@ -35,5 +38,46 @@ class AdminController extends Controller
                 'edl_complete' => $edlComplete,
             ],
         ]);
+    }
+
+    /**
+     * Liste des utilisateurs avec leur rôle et leur nombre d'EDL.
+     */
+    public function users()
+    {
+        $users = User::withCount('edls')->orderBy('name')->get()->map(fn (User $u) => [
+            'id'         => $u->id,
+            'name'       => $u->full_name,
+            'email'      => $u->email,
+            'role'       => $u->role,
+            'edls_count' => $u->edls_count,
+        ]);
+
+        return response()->json($users);
+    }
+
+    /**
+     * Change le rôle d'un utilisateur (au moins un administrateur doit toujours rester).
+     */
+    public function updateUser(Request $request, User $user)
+    {
+        $data = $request->validate(['role' => ['required', Rule::in(User::ROLES)]]);
+
+        if ($user->isAdmin() && $data['role'] !== User::ROLE_ADMIN && User::where('role', User::ROLE_ADMIN)->count() <= 1) {
+            return response()->json(['message' => 'Il doit rester au moins un administrateur.'], 422);
+        }
+
+        if ($user->role !== $data['role']) {
+            $previous = $user->role;
+            $user->forceFill(['role' => $data['role']])->save();
+
+            ActivityLogger::userRoleChanged($user->id, [
+                'name' => $user->full_name,
+                'from' => $previous,
+                'to'   => $user->role,
+            ]);
+        }
+
+        return response()->json(['id' => $user->id, 'role' => $user->role]);
     }
 }

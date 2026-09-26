@@ -1,191 +1,150 @@
 <template>
-<div v-if="loading" class="text-center py-16 text-gray-400" role="status" aria-live="polite">
-    <p class="text-lg">Chargement…</p>
+<div v-if="loading" class="flex justify-center py-16" role="status" aria-live="polite">
+    <q-spinner color="primary" size="40px" />
 </div>
 
-<div v-else class="max-w-2xl mx-auto">
-    <!-- Bannière succès -->
-    <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8 mb-5 text-center">
-        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 text-3xl mb-4">
-            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-            </svg>
-        </div>
-        <h1 class="text-xl sm:text-2xl font-bold text-gray-900">EDL validé avec succès</h1>
-        <p class="mt-1 text-sm text-gray-500">Le PDF a été généré et enregistré.</p>
-    </div>
+<div v-else class="max-w-2xl space-y-5">
+    <q-banner rounded class="bg-green-1 text-green-9">
+        <template #avatar><q-icon name="mdi-check-circle" color="positive" /></template>
+        <div class="font-bold">EDL validé avec succès</div>
+        <div class="text-body2">Le PDF a été généré et enregistré.</div>
+    </q-banner>
+    <q-banner v-if="edl.archived_at" dense rounded class="bg-amber-1 text-amber-10">
+        <template #avatar><q-icon name="mdi-archive-outline" color="warning" /></template>
+        Cet état des lieux est archivé : il n'apparaît plus dans l'historique ni sur le tableau de bord.
+    </q-banner>
 
-    <!-- Carte récap -->
-    <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-6 mb-5">
-        <h2 class="text-xs font-bold uppercase tracking-widest text-indigo-500 mb-4">Récapitulatif</h2>
-        <dl class="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
-            <dt class="text-gray-500 font-medium">N° EDL</dt>
-            <dd class="font-semibold text-gray-900 font-mono">{{ edl.numero }}</dd>
+    <!-- Récapitulatif -->
+    <q-card flat bordered>
+        <q-card-section><SectionTitle icon="mdi-file-document-outline" title="Récapitulatif" /></q-card-section>
+        <q-card-section class="pt-0">
+            <dl class="grid grid-cols-2 gap-x-4 gap-y-3 text-body2 m-0">
+                <dt class="text-grey-7">N° EDL</dt>
+                <dd class="font-medium font-mono m-0">{{ edl.numero }}</dd>
 
-            <dt class="text-gray-500 font-medium">Adresse</dt>
-            <dd class="font-semibold text-gray-900">{{ edl.adresse }}, {{ edl.ville }}</dd>
+                <dt class="text-grey-7">Adresse</dt>
+                <dd class="font-medium m-0">{{ edl.adresse }}, {{ edl.ville }}</dd>
 
-            <dt class="text-gray-500 font-medium">Type</dt>
-            <dd>
-                <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold"
-                    :class="edl.type === 'entrant' ? 'badge-entrant' : 'badge-sortant'">
-                    {{ edl.type_label }}
-                </span>
-            </dd>
+                <dt class="text-grey-7">Type</dt>
+                <dd class="m-0"><AppBadge :tone="edl.type === 'entrant' ? 'green' : 'amber'" dot>{{ edl.type_label }}</AppBadge></dd>
 
-            <template v-if="edl.locataire_full_name">
-                <dt class="text-gray-500 font-medium">Locataire</dt>
-                <dd class="font-semibold text-gray-900">{{ edl.locataire_full_name }}</dd>
-            </template>
+                <template v-if="edl.locataire_full_name">
+                    <dt class="text-grey-7">Locataire</dt>
+                    <dd class="font-medium m-0">{{ edl.locataire_full_name }}</dd>
+                </template>
 
-            <dt class="text-gray-500 font-medium">Date</dt>
-            <dd class="font-semibold text-gray-900">{{ formatDate(edl.date_edl) }}</dd>
+                <dt class="text-grey-7">Date</dt>
+                <dd class="font-medium m-0">{{ formatDate(edl.date_edl) }}</dd>
 
-            <dt class="text-gray-500 font-medium">Réalisé par</dt>
-            <dd class="font-semibold text-gray-900">{{ edl.agent_name || 'Non renseigné' }}</dd>
-        </dl>
-    </div>
+                <dt class="text-grey-7">Réalisé par</dt>
+                <dd class="font-medium m-0">{{ edl.agent_name || 'Non renseigné' }}</dd>
+            </dl>
+        </q-card-section>
+    </q-card>
 
     <!-- Actions PDF -->
-    <div class="grid grid-cols-2 gap-3 mb-5">
-        <a :href="`/edl/${edl.id}/pdf/view`" target="_blank"
-            class="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-xl shadow-sm transition min-h-[48px] text-sm">
-            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-            </svg>
-            Lire EDL
-        </a>
-        <a :href="`/edl/${edl.id}/pdf`"
-            class="flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-gray-700 font-semibold py-3 px-4 rounded-xl border border-gray-200 shadow-sm transition min-h-[48px] text-sm">
-            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-            </svg>
-            Télécharger EDL
-        </a>
+    <div class="grid grid-cols-2 gap-3">
+        <q-btn :href="`/edl/${edl.id}/pdf/view`" target="_blank" unelevated no-caps size="lg" color="primary" icon="mdi-eye" label="Lire EDL" />
+        <q-btn :href="`/edl/${edl.id}/pdf`" unelevated no-caps size="lg" color="grey-3" text-color="grey-9" icon="mdi-download" label="Télécharger EDL" />
     </div>
+
+    <!-- Intégrité du PDF -->
+    <q-card flat bordered>
+        <q-card-section class="flex flex-wrap items-center gap-3">
+            <span class="inline-flex size-10 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600"><q-icon name="mdi-shield-check-outline" size="22px" /></span>
+            <div class="min-w-0 flex-1">
+                <p class="m-0 font-medium">Intégrité du document</p>
+                <p class="m-0 text-caption text-grey-7">
+                    Signé le {{ formatDate(edl.signed_at) }}
+                    <template v-if="edl.pdf_hash"> · empreinte SHA-256 <span class="font-mono break-all" :title="edl.pdf_hash">{{ edl.pdf_hash.slice(0, 16) }}…</span></template>
+                </p>
+                <p v-if="integrity" class="m-0 mt-1 text-body2" role="status" aria-live="polite"
+                    :class="integrity.valid === true ? 'text-positive' : integrity.valid === false ? 'text-negative' : 'text-grey-8'">
+                    <q-icon :name="integrity.valid === true ? 'mdi-check-circle' : integrity.valid === false ? 'mdi-alert-circle' : 'mdi-help-circle-outline'" />
+                    {{ integrityText }}
+                </p>
+            </div>
+            <q-btn outline no-caps color="primary" icon="mdi-shield-search" label="Vérifier" :loading="integrityLoading" @click="checkIntegrity" />
+        </q-card-section>
+    </q-card>
 
     <!-- Actions secondaires -->
-    <div class="flex gap-3 mb-5">
-        <router-link to="/"
-            class="flex-1 flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-gray-600 font-medium py-2.5 px-4 rounded-xl border border-gray-200 transition text-sm min-h-[44px]">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
-            </svg>
-            Nouvel EDL
-        </router-link>
-        <router-link to="/historique"
-            class="flex-1 flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-gray-600 font-medium py-2.5 px-4 rounded-xl border border-gray-200 transition text-sm min-h-[44px]">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-            </svg>
-            Historique
-        </router-link>
-        <button @click="showDeleteModal = true"
-            class="flex items-center justify-center gap-2 bg-white hover:bg-red-50 text-gray-400 hover:text-red-600 font-medium py-2.5 px-4 rounded-xl border border-gray-200 hover:border-red-200 transition text-sm min-h-[44px]">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-            </svg>
-            Supprimer
-        </button>
+    <div class="flex flex-wrap gap-3">
+        <q-btn v-if="edl.type === 'sortant' && edl.entrant_id" class="flex-1" unelevated no-caps color="secondary" icon="mdi-compare-horizontal"
+            label="Comparer avec l'entrant" :to="{ name: 'comparison', params: { id: edl.id } }" />
+        <q-btn class="flex-1" outline no-caps color="primary" icon="mdi-plus-circle-outline" label="Nouvel EDL" to="/nouveau" />
+        <q-btn class="flex-1" outline no-caps color="primary" icon="mdi-home-clock-outline" label="Historique du logement" :to="{ name: 'logement', query: { adresse: edl.adresse, ville: edl.ville ?? '' } }" />
+        <q-btn class="flex-1" outline no-caps color="primary" icon="mdi-history" label="Historique" to="/historique" />
+        <q-btn outline no-caps color="primary" icon="mdi-content-copy" label="Dupliquer" @click="showDuplicate = true" />
+        <q-btn v-if="user?.is_admin && !edl.archived_at" outline no-caps color="grey-8" icon="mdi-archive-outline" label="Archiver" :loading="archiveLoading" @click="setArchived(true)" />
+        <q-btn v-if="user?.is_admin && edl.archived_at" outline no-caps color="grey-8" icon="mdi-archive-arrow-up-outline" label="Désarchiver" :loading="archiveLoading" @click="setArchived(false)" />
+        <q-btn v-if="user?.is_admin" outline no-caps color="negative" icon="mdi-delete-outline" label="Supprimer" @click="showDeleteModal = true" />
     </div>
+
+    <DuplicateDialog :edl="showDuplicate ? edl : null" @close="showDuplicate = false" />
 
     <!-- Modale suppression -->
-    <Teleport to="body">
-        <div v-if="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
-            @click.self="showDeleteModal = false">
-            <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6">
-                <div class="text-center mb-5">
-                    <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-red-100 mb-3">
-                        <svg class="w-7 h-7 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                        </svg>
-                    </div>
-                    <h2 class="text-lg font-extrabold text-gray-900">Supprimer cet EDL ?</h2>
-                    <p class="mt-2 text-sm text-gray-500">{{ edl.adresse }}</p>
-                    <p class="mt-1 text-xs text-red-600 font-medium">Cette action est irréversible.</p>
-                </div>
-                <div class="flex gap-3">
-                    <button @click="showDeleteModal = false"
-                        class="flex-1 py-3 rounded-xl border border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 transition text-sm">
-                        Annuler
-                    </button>
-                    <button @click="confirmDelete" :disabled="deleteLoading"
-                        class="flex-1 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold transition disabled:opacity-60 text-sm">
-                        {{ deleteLoading ? 'Suppression…' : 'Supprimer' }}
-                    </button>
-                </div>
-            </div>
-        </div>
-    </Teleport>
+    <q-dialog v-model="showDeleteModal">
+        <q-card style="width: 24rem; max-width: 92vw">
+            <q-card-section>
+                <div class="text-h6">Supprimer cet EDL ?</div>
+                <p class="text-body2 mt-2 mb-0">{{ edl.adresse }}</p>
+                <p class="text-body2 text-negative font-medium mt-1 mb-0">Cette action est irréversible.</p>
+            </q-card-section>
+            <q-card-actions align="right">
+                <q-btn flat no-caps label="Annuler" v-close-popup />
+                <q-btn unelevated no-caps color="negative" icon="mdi-delete" :loading="deleteLoading"
+                    :label="deleteLoading ? 'Suppression…' : 'Supprimer'" @click="confirmDelete" />
+            </q-card-actions>
+        </q-card>
+    </q-dialog>
 
     <!-- Envoi par email -->
-    <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-6 mt-8 text-left">
-        <h2 class="text-lg font-bold text-gray-800 mb-1 flex items-center gap-2">
-            📧 Envoyer le PDF par email
-        </h2>
-        <p class="text-sm text-gray-500 mb-5">
-            Sélectionnez les destinataires ou ajoutez une adresse email.
-        </p>
-
-        <!-- Destinataires pré-remplis -->
-        <div class="space-y-3 mb-5">
-            <label v-if="edl.locataire_email" class="flex items-center gap-3 cursor-pointer group">
-                <input type="checkbox" v-model="emailRecipients" :value="edl.locataire_email"
-                    class="h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                <div>
-                    <span class="font-semibold text-gray-800 text-sm group-hover:text-indigo-600 transition">
-                        {{ edl.locataire_full_name || 'Locataire' }}
+    <q-card flat bordered>
+        <q-card-section>
+            <SectionTitle icon="mdi-email-outline" title="Envoyer le PDF par email" />
+            <p class="text-body2 text-grey-7 mt-2 mb-0">Sélectionnez les destinataires ou ajoutez une adresse email.</p>
+        </q-card-section>
+        <q-card-section class="pt-0 space-y-5">
+            <div class="flex flex-col">
+                <q-checkbox v-if="edl.locataire_email" v-model="emailRecipients" :val="edl.locataire_email" color="primary">
+                    <span class="text-body2">
+                        <span class="font-medium">{{ edl.locataire_full_name || 'Locataire' }}</span>
+                        <span class="text-grey-7"> – {{ edl.locataire_email }}</span>
                     </span>
-                    <span class="text-gray-400 text-sm ml-1">– {{ edl.locataire_email }}</span>
-                </div>
-            </label>
-            <label v-if="agentEmail" class="flex items-center gap-3 cursor-pointer group">
-                <input type="checkbox" v-model="emailRecipients" :value="agentEmail"
-                    class="h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                <div>
-                    <span class="font-semibold text-gray-800 text-sm group-hover:text-indigo-600 transition">
-                        {{ edl.agent_name || 'Agent' }}
+                </q-checkbox>
+                <q-checkbox v-if="agentEmail" v-model="emailRecipients" :val="agentEmail" color="primary">
+                    <span class="text-body2">
+                        <span class="font-medium">{{ edl.agent_name || 'Agent' }}</span>
+                        <span class="text-grey-7"> – {{ agentEmail }}</span>
                     </span>
-                    <span class="text-gray-400 text-sm ml-1">– {{ agentEmail }}</span>
-                </div>
-            </label>
-        </div>
+                </q-checkbox>
+            </div>
 
-        <!-- Ajout d'email libre -->
-        <div class="flex gap-2 mb-5">
-            <input type="email" v-model="customEmail" placeholder="Autre adresse email…"
-                @keyup.enter="addCustomEmail"
-                class="flex-1 rounded-xl border border-gray-300 px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-400 focus:outline-none">
-            <button @click="addCustomEmail" type="button"
-                class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold px-4 py-3 rounded-xl text-sm transition">
-                + Ajouter
-            </button>
-        </div>
+            <div class="flex gap-2">
+                <q-input class="flex-1" outlined dense type="email" v-model="customEmail" placeholder="Autre adresse email…"
+                    @keyup.enter="addCustomEmail" />
+                <q-btn unelevated no-caps color="secondary" icon="mdi-plus" label="Ajouter" @click="addCustomEmail" />
+            </div>
 
-        <!-- Emails personnalisés ajoutés -->
-        <div v-if="customEmails.length" class="flex flex-wrap gap-2 mb-5">
-            <span v-for="(email, i) in customEmails" :key="email"
-                class="inline-flex items-center gap-1 bg-indigo-50 text-indigo-700 rounded-full px-3 py-1 text-sm font-medium">
-                {{ email }}
-                <button @click="removeCustomEmail(i)" class="text-indigo-400 hover:text-red-500 ml-1">✕</button>
-            </span>
-        </div>
+            <div v-if="customEmails.length" class="flex flex-wrap gap-2">
+                <q-chip v-for="(email, i) in customEmails" :key="email" removable color="blue-1" text-color="primary"
+                    @remove="removeCustomEmail(i)">{{ email }}</q-chip>
+            </div>
 
-        <!-- Bouton envoi -->
-        <button @click="sendEmails" :disabled="allRecipients.length === 0 || emailSending"
-            class="w-full bg-green-600 hover:bg-green-700 active:bg-green-800 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl shadow-sm transition text-base">
-            {{ emailSending ? 'Envoi en cours…' : `📧 Envoyer à ${allRecipients.length} destinataire(s)` }}
-        </button>
+            <q-btn class="w-full" unelevated no-caps size="lg" color="positive" icon="mdi-send" :loading="emailSending"
+                :disable="allRecipients.length === 0"
+                :label="emailSending ? 'Envoi en cours…' : `Envoyer à ${allRecipients.length} destinataire(s)`"
+                @click="sendEmails" />
 
-        <!-- Résultat -->
-        <div v-if="emailSuccess" class="mt-4 bg-green-50 border border-green-200 rounded-xl px-4 py-3 text-green-700 text-sm font-medium flex items-center gap-2">
-            ✅ {{ emailSuccess }}
-        </div>
-        <div v-if="emailError" class="mt-4 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-red-700 text-sm font-medium flex items-center gap-2">
-            ❌ {{ emailError }}
-        </div>
-    </div>
+            <q-banner v-if="emailSuccess" rounded class="bg-green-1 text-green-9">
+                <template #avatar><q-icon name="mdi-check-circle" color="positive" /></template>{{ emailSuccess }}
+            </q-banner>
+            <q-banner v-if="emailError" rounded class="bg-red-1 text-negative">
+                <template #avatar><q-icon name="mdi-close-circle" color="negative" /></template>{{ emailError }}
+            </q-banner>
+        </q-card-section>
+    </q-card>
 </div>
 </template>
 
@@ -193,12 +152,55 @@
 import { ref, computed, inject, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
+import AppBadge from '@/components/AppBadge.vue'
+import SectionTitle from '@/components/SectionTitle.vue'
+import DuplicateDialog from '@/components/DuplicateDialog.vue'
 
 const route = useRoute()
 const router = useRouter()
 const loading = ref(true)
 const edl = ref({})
 const user = inject('user')
+
+// Intégrité du PDF (empreinte enregistrée à la validation)
+const integrity = ref(null)
+const integrityLoading = ref(false)
+const integrityText = computed(() => {
+    if (!integrity.value) return ''
+    if (!integrity.value.file) return 'Le fichier PDF est introuvable sur le serveur.'
+    if (integrity.value.valid === true) return 'Le PDF est identique à celui généré à la validation.'
+    if (integrity.value.valid === false) return 'Attention : le PDF ne correspond plus à celui généré à la validation.'
+    return "Ce PDF a été généré avant l'enregistrement des empreintes : vérification impossible."
+})
+
+async function checkIntegrity() {
+    integrityLoading.value = true
+    try {
+        integrity.value = (await axios.get(`/api/edls/${route.params.id}/integrity`)).data
+    } catch (e) {
+        integrity.value = { file: true, valid: null }
+        console.error('Erreur vérification intégrité', e)
+    } finally {
+        integrityLoading.value = false
+    }
+}
+
+// Duplication / archivage
+const showDuplicate = ref(false)
+const archiveLoading = ref(false)
+
+async function setArchived(archived) {
+    archiveLoading.value = true
+    try {
+        if (archived) await axios.post(`/api/edls/${route.params.id}/archive`)
+        else await axios.delete(`/api/edls/${route.params.id}/archive`)
+        edl.value = { ...edl.value, archived_at: archived ? new Date().toISOString() : null }
+    } catch (e) {
+        console.error('Erreur archivage', e)
+    } finally {
+        archiveLoading.value = false
+    }
+}
 
 // Suppression
 const showDeleteModal = ref(false)

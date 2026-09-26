@@ -27,13 +27,39 @@ class ActivityLogger
         static::log('edl_deleted', 'edl', $edlId, $details);
     }
 
-    public static function categoryCreated(int $categoryId, array $details): void
+    public static function edlArchived(int $edlId, array $details): void
     {
-        static::log('category_created', 'category', $categoryId, $details);
+        static::log('edl_archived', 'edl', $edlId, $details);
     }
 
-    public static function categoryDeleted(int $categoryId, array $details): void
+    public static function edlUnarchived(int $edlId, array $details): void
     {
-        static::log('category_deleted', 'category', $categoryId, $details);
+        static::log('edl_unarchived', 'edl', $edlId, $details);
+    }
+
+    public static function edlDuplicated(int $edlId, array $details): void
+    {
+        static::log('edl_duplicated', 'edl', $edlId, $details);
+    }
+
+    /** Connexions : IP et navigateur conservés pour retrouver une utilisation suspecte. */
+    public static function userLogin(int $userId, array $details = []): void
+    {
+        static::log('user_login', 'user', $userId, $details);
+    }
+
+    public static function userLogout(int $userId, array $details = []): void
+    {
+        static::log('user_logout', 'user', $userId, $details);
+    }
+
+    public static function loginFailed(array $details = []): void
+    {
+        static::log('login_failed', 'user', null, $details);
+    }
+
+    public static function userRoleChanged(int $userId, array $details): void
+    {
+        static::log('user_role_changed', 'user', $userId, $details);
     }
 }

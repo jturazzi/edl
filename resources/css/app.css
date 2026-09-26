@@ -1,4 +1,10 @@
-@import 'tailwindcss';
+/* Quasar (CSS précompilé) dans sa propre couche : les utilitaires Tailwind (grille, espacements) l'emportent */
+@layer theme, override, quasar, app, utilities;
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'quasar/dist/quasar.css' layer(quasar);
+@import 'quasar/dist/quasar.addon.css' layer(quasar);
+@import 'tailwindcss/utilities.css' layer(utilities);
+@import './dark.css';
 
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
@@ -8,210 +14,142 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
-    --color-primary: #4f46e5;
-    --color-primary-dark: #3730a3;
 }
 
-/* ═══════════════════════════════════════════════════════════════════
-   BASE
-   ═══════════════════════════════════════════════════════════════════ */
+body {
+    -webkit-text-size-adjust: 100%;
+    font-family: var(--font-sans);
+    background: #f4f7fb;
+    color: #1e2a44;
+}
+.q-btn, .q-field { font-family: inherit; }
 button, a, [role="button"] { touch-action: manipulation; }
 
-:focus-visible {
-    outline: 3px solid #6366f1;
-    outline-offset: 2px;
-    border-radius: 4px;
-}
-:focus:not(:focus-visible) { outline: none; }
-
-* { scrollbar-width: thin; scrollbar-color: #c7d2fe transparent; }
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #c7d2fe; border-radius: 6px; }
-
-body { -webkit-text-size-adjust: 100%; }
-
-/* ═══════════════════════════════════════════════════════════════════
-   FOND APPLICATION
-   ═══════════════════════════════════════════════════════════════════ */
-.app-bg {
-    background-color: #f1f5f9;
-    background-image:
-        radial-gradient(at 0% 0%, rgba(99,102,241,.07) 0, transparent 55%),
-        radial-gradient(at 100% 100%, rgba(139,92,246,.05) 0, transparent 55%);
-}
-
-/* ═══════════════════════════════════════════════════════════════════
-   NAVIGATION
-   ═══════════════════════════════════════════════════════════════════ */
-.nav-pill {
-    @apply flex items-center gap-1.5 text-sm font-medium text-gray-600
-           px-3 py-2 rounded-xl transition-all duration-150 min-h-[44px];
-}
-.nav-pill:hover {
-    @apply text-indigo-700 bg-indigo-50;
-}
-.nav-pill.router-link-exact-active {
-    @apply text-indigo-700 bg-indigo-50 font-semibold;
-    box-shadow: inset 0 0 0 1.5px rgba(99,102,241,.25);
-}
-
-/* ═══════════════════════════════════════════════════════════════════
-   BADGES
-   ═══════════════════════════════════════════════════════════════════ */
-.badge-entrant {
-    @apply bg-emerald-50 text-emerald-700 ring-1 ring-emerald-300/80;
-}
-.badge-sortant {
-    @apply bg-amber-50 text-amber-700 ring-1 ring-amber-300/80;
-}
-.badge-complet {
-    @apply bg-indigo-50 text-indigo-700 ring-1 ring-indigo-300/80;
-}
-
-/* ═══════════════════════════════════════════════════════════════════
-   CARTES
-   ═══════════════════════════════════════════════════════════════════ */
-.card {
-    @apply bg-white rounded-2xl border border-gray-200 shadow-sm;
-}
-.card-hover {
-    @apply transition-all duration-200 hover:shadow-md hover:-translate-y-0.5;
-}
-
-/* ═══════════════════════════════════════════════════════════════════
-   BOUTONS
-   ═══════════════════════════════════════════════════════════════════ */
-.btn-primary {
-    @apply inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700
-           active:bg-indigo-800 text-white font-bold rounded-xl transition-all duration-150
-           shadow-sm hover:shadow-indigo-200 min-h-[44px] px-4 py-2.5 text-sm;
-}
-.btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 text-gray-600
-           hover:text-indigo-700 hover:bg-indigo-50
-           font-medium rounded-xl transition-all duration-150 min-h-[44px] px-4 py-2.5 text-sm;
-}
-.btn-danger {
-    @apply inline-flex items-center justify-center gap-2 text-gray-400
-           hover:text-red-600 hover:bg-red-50
-           rounded-xl transition-all duration-150 min-h-[44px] px-3 py-2.5 text-sm;
-}
-
-/* ═══════════════════════════════════════════════════════════════════
-   INPUTS
-   ═══════════════════════════════════════════════════════════════════ */
-.field-input {
-    @apply w-full rounded-xl border border-gray-200
-           px-4 py-3 text-base
-           focus:ring-2 focus:ring-indigo-400/40 focus:border-indigo-400 focus:outline-none
-           transition duration-150;
-}
-input, textarea, select { font-size: 16px; }
-@media (min-width: 640px) { input, textarea, select { font-size: 1rem; } }
-
-/* ═══════════════════════════════════════════════════════════════════
-   PHOTO UPLOADER
-   ═══════════════════════════════════════════════════════════════════ */
-.btn-photo {
-    @apply inline-flex items-center gap-2 bg-indigo-50 text-indigo-700 border border-indigo-200
-           rounded-xl font-semibold cursor-pointer;
-    padding: .75rem 1.25rem;
-    font-size: 1rem;
-    min-height: 48px;
-    transition: background .2s;
-}
-.btn-photo:hover { @apply bg-indigo-100; }
-
-.photo-preview-grid {
-    @apply grid gap-3 mt-3;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-}
-.photo-preview-grid img {
-    @apply rounded-xl object-cover w-full border border-gray-200 shadow-sm;
-    height: 90px;
-}
-@media (min-width: 640px) {
-    .photo-preview-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
-    .photo-preview-grid img { height: 110px; }
-}
-
-/* ═══════════════════════════════════════════════════════════════════
-   SIGNATURE PAD
-   ═══════════════════════════════════════════════════════════════════ */
+/* Signature pad */
 #signature-canvas,
 .signature-canvas {
     touch-action: none;
-    border: 2px dashed #a5b4fc;
-    border-radius: 1rem;
-    background: #f8fafc;
+    border: 2px dashed #cbd5e1;
+    border-radius: 12px;
+    background: #fff;
     cursor: crosshair;
     width: 100%;
     display: block;
 }
 
-/* ═══════════════════════════════════════════════════════════════════
-   CARTES ÉTAT (formulaire)
-   ═══════════════════════════════════════════════════════════════════ */
-.etat-card {
-    min-height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    user-select: none;
-    touch-action: manipulation;
-    cursor: pointer;
-    transition: all .15s ease;
-    background: #fff;
-    border-color: #e5e7eb;
-    color: #9ca3af;
-    font-size: .8rem;
-    border-radius: .75rem;
+/* Textes gris de Quasar : leur `!important` (couche quasar) ne se surcharge que depuis une couche déclarée avant elle */
+@layer override {
+    .text-grey-6, .text-grey-7 { color: #64748b !important; }
+    .text-grey-9 { color: #0f172a !important; }
 }
-@media (min-width: 640px) { .etat-card { font-size: .85rem; } }
-input[type="radio"]:checked + .etat-card { font-weight: 700; }
 
-input[value="bon"]:checked + .etat-card {
-    background: #dcfce7 !important; border-color: #22c55e !important; color: #15803d !important;
-    box-shadow: 0 0 0 3px rgba(34,197,94,.15);
+/* Quasar force `flex-wrap: wrap` sur `.flex` : on revient au comportement Tailwind (nowrap par défaut) */
+@layer quasar {
+    .flex { flex-wrap: nowrap; }
 }
-input[value="usure"]:checked + .etat-card {
-    background: #fef9c3 !important; border-color: #eab308 !important; color: #a16207 !important;
-    box-shadow: 0 0 0 3px rgba(234,179,8,.15);
-}
-input[value="mauvais"]:checked + .etat-card {
-    background: #fee2e2 !important; border-color: #ef4444 !important; color: #b91c1c !important;
-    box-shadow: 0 0 0 3px rgba(239,68,68,.15);
-}
-input[value="na"]:checked + .etat-card {
-    background: #f3f4f6 !important; border-color: #9ca3af !important; color: #374151 !important;
+
+/* Tailwind `.inline` (display:inline) écrase le modificateur Quasar `.row.inline` (inline-flex) :
+   on remet le comportement Quasar pour ses composants (chips, cases à cocher…) */
+@layer utilities {
+    .row.inline, .column.inline, .flex.inline { display: inline-flex; }
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   ANIMATIONS
+   DESIGN SaaS (par-dessus Quasar, couche `app`)
    ═══════════════════════════════════════════════════════════════════ */
-@keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(8px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
-.fade-in-up { animation: fadeInUp .2s ease both; }
+@layer app {
+    :root {
+        --app-border: #e5e7eb;
+        --app-radius: 12px;
+        --app-radius-sm: 8px;
+        --app-shadow: 0 1px 2px rgba(16, 24, 40, .04);
+    }
 
-/* Transition entre pages (router-view) */
-.page-enter-active,
-.page-leave-active {
-    transition: opacity .15s ease, transform .15s ease;
-}
-.page-enter-from {
-    opacity: 0;
-    transform: translateY(6px);
-}
-.page-leave-to {
-    opacity: 0;
-    transform: translateY(-6px);
-}
+    body { font-size: 14px; background: #f8fafc; color: #0f172a; }
+    body, .q-btn, .q-field, .q-item, .q-chip, .q-banner, .q-table, .q-card, .q-dialog { font-family: var(--font-sans); }
+    h1, h2, h3, .text-h4, .text-h5, .text-h6, .text-subtitle1 { color: #0f172a; letter-spacing: -0.015em; }
+    .text-h5 { font-size: 1.5rem; line-height: 2rem; font-weight: 600; }
+    .text-h6 { font-size: 1.05rem; line-height: 1.5rem; font-weight: 600; }
 
-@keyframes pulse-ring {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(99,102,241,.3); }
-    50%       { box-shadow: 0 0 0 6px rgba(99,102,241,0); }
-}
+    /* Cartes : bordure fine, ombre minimale */
+    .q-card { border-radius: var(--app-radius); box-shadow: var(--app-shadow); border: 1px solid var(--app-border); }
+    .q-card--bordered { border: 1px solid var(--app-border); }
+    .q-card.hover\:shadow-md:hover { border-color: #cbd5e1; box-shadow: 0 4px 12px rgba(16, 24, 40, .06); }
+    .q-dialog__inner > .q-card { border-radius: 16px; box-shadow: 0 20px 48px rgba(16, 24, 40, .18); }
 
+    /* Boutons */
+    .q-btn { border-radius: var(--app-radius-sm); font-weight: 500; letter-spacing: 0; }
+    .q-btn--round { border-radius: 50%; }
+    .q-btn__content { flex-wrap: nowrap; }
+    .q-btn--outline:before { border-color: #cbd5e1; border-radius: inherit; }
+    .q-btn--outline.text-primary:before, .q-btn--outline.text-negative:before { border-color: currentColor; opacity: .5; }
+    .q-btn-group { border-radius: var(--app-radius-sm); overflow: hidden; box-shadow: none; }
+    .q-btn-group .q-btn { border-radius: 0; box-shadow: none; }
+
+    /* Champs */
+    .q-field--outlined .q-field__control { border-radius: var(--app-radius-sm); background: #fff; }
+    .q-field--outlined .q-field__control:before { border-color: #d5dbe5; }
+    .q-field--outlined:hover .q-field__control:before { border-color: #94a3b8; }
+    .q-field--outlined.q-field--focused .q-field__control:after { border-width: 2px; }
+    .q-field__label { color: #64748b; }
+
+    .q-banner { border-radius: var(--app-radius-sm); }
+    .q-markup-table, .q-table__container { border-radius: var(--app-radius); box-shadow: none; }
+    .q-item { border-radius: var(--app-radius-sm); }
+    .q-list--separator > .q-item, .q-list--separator > .q-item-type { border-radius: 0; }
+
+    /* Barre latérale */
+    .app-sidebar { background: #fff; border-right: 1px solid var(--app-border); }
+    .app-sidebar .side-link {
+        display: flex; align-items: center; gap: 10px;
+        padding: 8px 12px; border-radius: var(--app-radius-sm);
+        color: #475569; font-weight: 500; text-decoration: none; cursor: pointer;
+        transition: background .12s, color .12s;
+    }
+    .app-sidebar .side-link:hover { background: #f1f5f9; color: #0f172a; }
+    .app-sidebar .side-link.is-active { background: #eff6ff; color: #1d4ed8; }
+    .app-sidebar .side-link .q-icon { font-size: 20px; }
+    .app-topbar { background: #fff; color: #0f172a; border-bottom: 1px solid var(--app-border); }
+
+    .signature-canvas { border-radius: var(--app-radius); }
+
+    /* Légende de photo dans la visionneuse sombre */
+    .photo-caption .q-field__control { background: rgba(255, 255, 255, .08); }
+    .photo-caption .q-field__control:before { border-color: rgba(255, 255, 255, .25); }
+
+    /* Impression du bilan des retenues : seule la zone .print-area reste visible */
+    .print-only { display: none; }
+    @media print {
+        body.printing-bilan { background: #fff; }
+        body.printing-bilan .q-drawer, body.printing-bilan .q-header, body.printing-bilan .no-print { display: none !important; }
+        body.printing-bilan .q-page-container, body.printing-bilan .q-layout { padding: 0 !important; }
+        body.printing-bilan .q-drawer-container { display: none !important; }
+        body.printing-bilan .print-only { display: block; }
+        body.printing-bilan .q-card { border: 0; box-shadow: none; }
+        body.printing-bilan .q-field--outlined .q-field__control:before { border-color: transparent; }
+    }
+
+    /* ── Accessibilité ─────────────────────────────────────── */
+    /* Lien d'évitement : visible uniquement au clavier */
+    .skip-link {
+        position: fixed; left: 12px; top: -60px; z-index: 10000;
+        padding: 10px 16px; border-radius: 8px; background: #1d4ed8; color: #fff;
+        font-weight: 600; text-decoration: none; transition: top .12s;
+    }
+    .skip-link:focus { top: 12px; }
+
+    /* Focus clavier bien visible sur tous les éléments interactifs */
+    :focus-visible { outline: 3px solid #1d4ed8; outline-offset: 2px; }
+    .q-btn:focus-visible, .q-item:focus-visible { outline: 3px solid #1d4ed8; outline-offset: 2px; }
+    main:focus { outline: none; }
+    .signature-canvas:focus-visible { outline: 3px solid #1d4ed8; }
+
+    /* Contraste : les gris clairs de Quasar (≈2,7:1) passent à un gris lisible (≥4,5:1) */
+    .text-slate-400 { color: #64748b; }
+    ::placeholder { color: #64748b; } /* l'opacité reste gérée par Quasar : le texte d'exemple n'apparaît qu'au focus */
+
+    /* Utilisateurs sensibles aux animations */
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+    }
+}

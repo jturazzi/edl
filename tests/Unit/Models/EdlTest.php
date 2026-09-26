@@ -85,13 +85,6 @@ class EdlTest extends TestCase
         $this->assertSame(['piece' => 'salon', 'etat' => 'bon'], $edl->fresh()->survey_data);
     }
 
-    public function test_belongs_to_category(): void
-    {
-        $edl = Edl::factory()->create();
-
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsTo::class, $edl->category());
-    }
-
     public function test_has_many_photos(): void
     {
         $edl = Edl::factory()->create();

@@ -1,0 +1,186 @@
+/* ═══════════════════════════════════════════════════════════════════
+   MODE SOMBRE (classe `body--dark` posée par le plugin Dark de Quasar)
+   Les échelles de couleurs Tailwind utilisées par l'application sont inversées (50 ↔ 950, 100 ↔ 900…) :
+   les classes existantes (bg-slate-50, text-slate-900, bg-emerald-50…) restent lisibles sans les réécrire.
+   ═══════════════════════════════════════════════════════════════════ */
+/* Les déclarations `!important` de Quasar (couche `quasar`) l'emportent sur celles des couches suivantes :
+   les nôtres vivent donc dans une couche déclarée avant `quasar`. */
+@layer override {
+body.body--dark .text-grey-6, body.body--dark .text-grey-7 { color: var(--app-muted) !important; }
+body.body--dark .text-grey-8, body.body--dark .text-grey-9 { color: var(--app-text) !important; }
+body.body--dark .text-primary { color: var(--app-primary-text) !important; }
+body.body--dark .text-green-9 { color: #86efac !important; }
+body.body--dark .text-amber-9, body.body--dark .text-amber-10 { color: #fcd34d !important; }
+body.body--dark .text-negative { color: #fca5a5 !important; }
+body.body--dark .text-positive { color: #4ade80 !important; }
+body.body--dark .bg-white { background: var(--app-surface) !important; }
+body.body--dark .bg-grey-3 { background: var(--app-surface-2) !important; }
+body.body--dark .bg-grey-3.text-grey-9 { color: var(--app-text) !important; }
+body.body--dark .bg-blue-1 { background: #142347 !important; }
+body.body--dark .bg-green-1 { background: #0f2a1d !important; }
+body.body--dark .bg-red-1 { background: #351516 !important; }
+body.body--dark .bg-amber-1 { background: #33260a !important; }
+body.body--dark .bg-slate-100.text-grey-8 { background: var(--app-surface-2) !important; }
+body.body--dark .q-btn-toggle .q-btn.bg-white { background: var(--app-surface) !important; color: var(--app-text) !important; }
+body.body--dark .app-sidebar .q-avatar { background: var(--app-primary-soft) !important; }
+}
+
+@layer app {
+body.body--dark {
+    color-scheme: dark;
+    --app-bg: #0b1220;
+    --app-surface: #121b2e;
+    --app-surface-2: #182339;
+    --app-border: #27344d;
+    --app-text: #e6edf7;
+    --app-muted: #94a3b8;
+    --app-primary-soft: #16264a;
+    --app-primary-text: #7fb0ff;
+    --color-slate-50: oklch(12.9% 0.042 264.695);
+    --color-slate-100: oklch(20.8% 0.042 265.755);
+    --color-slate-200: oklch(27.9% 0.041 260.031);
+    --color-slate-300: oklch(37.2% 0.044 257.287);
+    --color-slate-400: oklch(44.6% 0.043 257.281);
+    --color-slate-500: oklch(55.4% 0.046 257.417);
+    --color-slate-600: oklch(70.4% 0.04 256.788);
+    --color-slate-700: oklch(86.9% 0.022 252.894);
+    --color-slate-800: oklch(92.9% 0.013 255.508);
+    --color-slate-900: oklch(96.8% 0.007 247.896);
+    --color-slate-950: oklch(98.4% 0.003 247.858);
+    --color-amber-50: oklch(27.9% 0.077 45.635);
+    --color-amber-100: oklch(41.4% 0.112 45.904);
+    --color-amber-200: oklch(47.3% 0.137 46.201);
+    --color-amber-300: oklch(55.5% 0.163 48.998);
+    --color-amber-400: oklch(66.6% 0.179 58.318);
+    --color-amber-500: oklch(76.9% 0.188 70.08);
+    --color-amber-600: oklch(82.8% 0.189 84.429);
+    --color-amber-700: oklch(87.9% 0.169 91.605);
+    --color-amber-800: oklch(92.4% 0.12 95.746);
+    --color-amber-900: oklch(96.2% 0.059 95.617);
+    --color-amber-950: oklch(98.7% 0.022 95.277);
+    --color-blue-50: oklch(28.2% 0.091 267.935);
+    --color-blue-100: oklch(37.9% 0.146 265.522);
+    --color-blue-200: oklch(42.4% 0.199 265.638);
+    --color-blue-300: oklch(48.8% 0.243 264.376);
+    --color-blue-400: oklch(54.6% 0.245 262.881);
+    --color-blue-500: oklch(62.3% 0.214 259.815);
+    --color-blue-600: oklch(70.7% 0.165 254.624);
+    --color-blue-700: oklch(80.9% 0.105 251.813);
+    --color-blue-800: oklch(88.2% 0.059 254.128);
+    --color-blue-900: oklch(93.2% 0.032 255.585);
+    --color-blue-950: oklch(97% 0.014 254.604);
+    --color-cyan-50: oklch(30.2% 0.056 229.695);
+    --color-cyan-100: oklch(39.8% 0.07 227.392);
+    --color-cyan-200: oklch(45% 0.085 224.283);
+    --color-cyan-300: oklch(52% 0.105 223.128);
+    --color-cyan-400: oklch(60.9% 0.126 221.723);
+    --color-cyan-500: oklch(71.5% 0.143 215.221);
+    --color-cyan-600: oklch(78.9% 0.154 211.53);
+    --color-cyan-700: oklch(86.5% 0.127 207.078);
+    --color-cyan-800: oklch(91.7% 0.08 205.041);
+    --color-cyan-900: oklch(95.6% 0.045 203.388);
+    --color-cyan-950: oklch(98.4% 0.019 200.873);
+    --color-emerald-50: oklch(26.2% 0.051 172.552);
+    --color-emerald-100: oklch(37.8% 0.077 168.94);
+    --color-emerald-200: oklch(43.2% 0.095 166.913);
+    --color-emerald-300: oklch(50.8% 0.118 165.612);
+    --color-emerald-400: oklch(59.6% 0.145 163.225);
+    --color-emerald-500: oklch(69.6% 0.17 162.48);
+    --color-emerald-600: oklch(76.5% 0.177 163.223);
+    --color-emerald-700: oklch(84.5% 0.143 164.978);
+    --color-emerald-800: oklch(90.5% 0.093 164.15);
+    --color-emerald-900: oklch(95% 0.052 163.051);
+    --color-emerald-950: oklch(97.9% 0.021 166.113);
+    --color-green-50: oklch(26.6% 0.065 152.934);
+    --color-green-100: oklch(39.3% 0.095 152.535);
+    --color-green-200: oklch(44.8% 0.119 151.328);
+    --color-green-300: oklch(52.7% 0.154 150.069);
+    --color-green-400: oklch(62.7% 0.194 149.214);
+    --color-green-500: oklch(72.3% 0.219 149.579);
+    --color-green-600: oklch(79.2% 0.209 151.711);
+    --color-green-700: oklch(87.1% 0.15 154.449);
+    --color-green-800: oklch(92.5% 0.084 155.995);
+    --color-green-900: oklch(96.2% 0.044 156.743);
+    --color-green-950: oklch(98.2% 0.018 155.826);
+    --color-orange-50: oklch(26.6% 0.079 36.259);
+    --color-orange-100: oklch(40.8% 0.123 38.172);
+    --color-orange-200: oklch(47% 0.157 37.304);
+    --color-orange-300: oklch(55.3% 0.195 38.402);
+    --color-orange-400: oklch(64.6% 0.222 41.116);
+    --color-orange-500: oklch(70.5% 0.213 47.604);
+    --color-orange-600: oklch(75% 0.183 55.934);
+    --color-orange-700: oklch(83.7% 0.128 66.29);
+    --color-orange-800: oklch(90.1% 0.076 70.697);
+    --color-orange-900: oklch(95.4% 0.038 75.164);
+    --color-orange-950: oklch(98% 0.016 73.684);
+    --color-red-50: oklch(25.8% 0.092 26.042);
+    --color-red-100: oklch(39.6% 0.141 25.723);
+    --color-red-200: oklch(44.4% 0.177 26.899);
+    --color-red-300: oklch(50.5% 0.213 27.518);
+    --color-red-400: oklch(57.7% 0.245 27.325);
+    --color-red-500: oklch(63.7% 0.237 25.331);
+    --color-red-600: oklch(70.4% 0.191 22.216);
+    --color-red-700: oklch(80.8% 0.114 19.571);
+    --color-red-800: oklch(88.5% 0.062 18.334);
+    --color-red-900: oklch(93.6% 0.032 17.717);
+    --color-red-950: oklch(97.1% 0.013 17.38);
+    --color-sky-50: oklch(29.3% 0.066 243.157);
+    --color-sky-100: oklch(39.1% 0.09 240.876);
+    --color-sky-200: oklch(44.3% 0.11 240.79);
+    --color-sky-300: oklch(50% 0.134 242.749);
+    --color-sky-400: oklch(58.8% 0.158 241.966);
+    --color-sky-500: oklch(68.5% 0.169 237.323);
+    --color-sky-600: oklch(74.6% 0.16 232.661);
+    --color-sky-700: oklch(82.8% 0.111 230.318);
+    --color-sky-800: oklch(90.1% 0.058 230.902);
+    --color-sky-900: oklch(95.1% 0.026 236.824);
+    --color-sky-950: oklch(97.7% 0.013 236.62);
+}
+
+body.body--dark h1, body.body--dark h2, body.body--dark h3,
+body.body--dark .text-h4, body.body--dark .text-h5, body.body--dark .text-h6, body.body--dark .text-subtitle1 { color: var(--app-text); }
+
+/* Couleurs de texte / fond Quasar utilisées dans les gabarits */
+
+/* Surfaces Quasar */
+body.body--dark .q-card { background: var(--app-surface); border-color: var(--app-border); box-shadow: none; }
+body.body--dark .q-card--bordered { border-color: var(--app-border); }
+body.body--dark .q-dialog__inner > .q-card { box-shadow: 0 20px 48px rgba(0, 0, 0, .55); }
+body.body--dark .q-menu, body.body--dark .q-select__dialog { background: var(--app-surface-2); border: 1px solid var(--app-border); }
+body.body--dark .q-item--active { color: var(--app-primary-text); }
+body.body--dark .q-separator { background: var(--app-border); }
+body.body--dark .q-banner { background: var(--app-surface-2); color: var(--app-text); }
+body.body--dark .q-tooltip { background: #33415a; color: #fff; }
+body.body--dark .q-table__container, body.body--dark .q-markup-table { background: var(--app-surface); }
+body.body--dark .q-skeleton { background: rgba(255, 255, 255, .08); }
+
+/* Champs */
+body.body--dark .q-field--outlined .q-field__control { background: var(--app-surface); }
+body.body--dark .q-field--outlined .q-field__control:before { border-color: #33415a; }
+body.body--dark .q-field--outlined:hover .q-field__control:before { border-color: #64748b; }
+body.body--dark .q-field__label, body.body--dark .q-field__native::placeholder { color: var(--app-muted); }
+body.body--dark ::placeholder { color: var(--app-muted); }
+body.body--dark .q-field__native, body.body--dark .q-field__input { color: var(--app-text); }
+
+/* Boutons contours / groupes */
+body.body--dark .q-btn--outline:before { border-color: #3b4a66; }
+body.body--dark .q-btn-toggle.border { border-color: #3b4a66; }
+
+/* Barre latérale et haut de page */
+body.body--dark .app-sidebar { background: var(--app-surface); border-right-color: var(--app-border); }
+body.body--dark .app-sidebar .side-link { color: #b6c2d6; }
+body.body--dark .app-sidebar .side-link:hover { background: var(--app-surface-2); color: var(--app-text); }
+body.body--dark .app-sidebar .side-link.is-active { background: var(--app-primary-soft); color: var(--app-primary-text); }
+body.body--dark .app-topbar { background: var(--app-surface); color: var(--app-text); border-bottom-color: var(--app-border); }
+
+/* Zone de signature : reste une « feuille blanche » (le trait est sombre) */
+body.body--dark .signature-canvas { border-color: #64748b; }
+
+/* Petits blocs colorés écrits en dur dans les gabarits (pastilles, badges) */
+body.body--dark .ring-blue-100, body.body--dark .ring-slate-200 { --tw-ring-color: var(--app-border); }
+body.body--dark .divide-slate-100 > :not(:last-child) { border-color: var(--app-border); }
+
+}
+
+/* `body` est stylé hors couche dans app.css : la surcharge doit l'être aussi */
+body.body--dark { background: var(--app-bg); color: var(--app-text); }

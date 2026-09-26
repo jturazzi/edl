@@ -1,38 +1,28 @@
 <template>
-<div class="w-full max-w-md mx-auto">
+<q-card class="w-full max-w-md mx-auto" style="border-radius: 16px">
+    <q-card-section class="text-center pt-8 pb-2">
+        <img :src="appLogo" :alt="appName" class="h-14 sm:h-20 w-auto mx-auto mb-3">
+        <h1 class="text-h5 font-bold m-0">{{ appName }}</h1>
+        <p class="text-body2 text-grey-7 mt-1 mb-0">Gestion des états des lieux</p>
+    </q-card-section>
 
-    <div class="bg-white rounded-2xl border border-gray-200/80 shadow-xl shadow-gray-200/50 p-6 sm:p-8">
+    <q-card-section class="space-y-4 pb-8">
+        <q-banner v-if="error" rounded class="bg-red-1 text-negative">
+            <template #avatar><q-icon name="mdi-alert-outline" color="negative" /></template>
+            {{ error }}
+        </q-banner>
 
-        <!-- Logo + titre -->
-        <div class="text-center mb-6 sm:mb-7">
-            <img :src="appLogo" :alt="appName" class="h-14 sm:h-20 w-auto mx-auto mb-3 sm:mb-4">
-            <h1 class="text-xl sm:text-2xl font-extrabold text-gray-900 tracking-tight">{{ appName }}</h1>
-            <p class="mt-1.5 text-sm text-gray-500">Gestion des états des lieux</p>
-        </div>
-
-        <!-- Erreur -->
-        <div v-if="error"
-            class="mb-5 flex items-center gap-3 bg-red-50 border border-red-200 text-red-800 rounded-xl px-4 py-3">
-            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-            </svg>
-            <p class="text-sm font-medium">{{ error }}</p>
-        </div>
-
-        <div class="h-px bg-gray-100 mb-6"></div>
-
-        <a href="/auth/microsoft"
-           class="w-full flex items-center justify-center gap-2 sm:gap-3 bg-gray-900 hover:bg-gray-800 text-white font-semibold py-3 sm:py-3.5 px-4 sm:px-6 rounded-xl transition-all duration-150 shadow-sm hover:shadow group">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 21 21" class="shrink-0">
+        <q-btn href="/auth/microsoft" unelevated no-caps size="lg" color="grey-10" class="w-full">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 21 21" class="shrink-0 mr-3">
                 <rect x="1" y="1" width="9" height="9" fill="#f25022"/>
                 <rect x="1" y="11" width="9" height="9" fill="#00a4ef"/>
                 <rect x="11" y="1" width="9" height="9" fill="#7fba00"/>
                 <rect x="11" y="11" width="9" height="9" fill="#ffb900"/>
             </svg>
-            <span class="text-sm sm:text-base text-center">Se connecter avec Microsoft 365</span>
-        </a>
-    </div>
-</div>
+            <span class="text-body2 sm:text-body1">Se connecter avec Microsoft 365</span>
+        </q-btn>
+    </q-card-section>
+</q-card>
 </template>
 
 <script setup>

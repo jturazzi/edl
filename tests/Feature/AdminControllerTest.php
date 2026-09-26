@@ -18,7 +18,7 @@ class AdminControllerTest extends TestCase
 
     public function test_info_returns_correct_counts(): void
     {
-        $this->actingAs(User::factory()->create());
+        $this->actingAs(User::factory()->admin()->create());
 
         Edl::factory()->count(2)->create(['type' => 'entrant', 'status' => 'en_cours']);
         Edl::factory()->count(3)->create(['type' => 'sortant', 'status' => 'complete']);
@@ -39,7 +39,7 @@ class AdminControllerTest extends TestCase
 
     public function test_info_returns_zeros_when_no_edls(): void
     {
-        $this->actingAs(User::factory()->create());
+        $this->actingAs(User::factory()->admin()->create());
 
         $response = $this->getJson('/api/admin/info');
 

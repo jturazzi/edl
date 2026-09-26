@@ -1,232 +1,174 @@
 <template>
 <div>
-    <!-- Retour -->
-    <div class="mb-5">
-        <router-link to="/"
-            class="inline-flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-indigo-600 transition">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
-            </svg>
-            Retour
-        </router-link>
-    </div>
+    <PageHeader title="Administration" subtitle="Statistiques, utilisateurs et journal d'activité." />
 
-    <!-- Skeleton global tant que les infos système ne sont pas là -->
+    <!-- Skeleton -->
     <div v-if="loading" class="space-y-4">
-        <div v-for="i in 4" :key="i" class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-            <div class="px-5 py-3 border-b border-gray-100">
-                <div class="h-4 w-32 rounded-full bg-gray-200 animate-pulse"></div>
-            </div>
-            <div class="px-5 py-4 space-y-3">
-                <div class="h-3 w-full rounded-full bg-gray-100 animate-pulse"></div>
-                <div class="h-3 w-3/4 rounded-full bg-gray-100 animate-pulse"></div>
-                <div class="h-3 w-1/2 rounded-full bg-gray-100 animate-pulse"></div>
-            </div>
-        </div>
+        <q-card v-for="i in 4" :key="i" flat bordered>
+            <q-card-section class="space-y-3">
+                <q-skeleton type="text" width="8rem" />
+                <q-skeleton type="text" />
+                <q-skeleton type="text" width="75%" />
+                <q-skeleton type="text" width="50%" />
+            </q-card-section>
+        </q-card>
     </div>
 
     <div v-else-if="info" class="space-y-5">
 
         <!-- Statistiques -->
-        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-            <div class="bg-green-50 border-b border-green-100 px-5 py-3">
-                <h2 class="text-base font-bold text-green-700">Statistiques</h2>
-            </div>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-px bg-gray-100">
-                <div class="bg-white px-5 py-4 text-center">
-                    <p class="text-2xl font-extrabold text-gray-900">{{ info.stats.edl_total }}</p>
-                    <p class="text-xs font-semibold text-gray-500 mt-0.5">EDL total</p>
-                </div>
-                <div class="bg-white px-5 py-4 text-center">
-                    <p class="text-2xl font-extrabold text-indigo-600">{{ info.stats.edl_entrant }}</p>
-                    <p class="text-xs font-semibold text-gray-500 mt-0.5">Entrants</p>
-                </div>
-                <div class="bg-white px-5 py-4 text-center">
-                    <p class="text-2xl font-extrabold text-violet-600">{{ info.stats.edl_sortant }}</p>
-                    <p class="text-xs font-semibold text-gray-500 mt-0.5">Sortants</p>
-                </div>
-                <div class="bg-white px-5 py-4 text-center">
-                    <p class="text-2xl font-extrabold text-green-600">{{ info.stats.edl_complete }}</p>
-                    <p class="text-xs font-semibold text-gray-500 mt-0.5">Complétés</p>
-                </div>
-            </div>
-            <div class="px-5 py-3 border-t border-gray-100">
-                <div class="flex items-center gap-2 text-sm text-gray-500">
-                    <span class="w-2 h-2 rounded-full bg-amber-400 shrink-0"></span>
-                    <span><strong class="text-gray-700">{{ info.stats.edl_en_cours }}</strong> en cours</span>
-                </div>
-            </div>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <q-card v-for="m in metrics" :key="m.label" flat>
+                <q-card-section class="flex items-center gap-3">
+                    <span class="inline-flex size-10 shrink-0 items-center justify-center rounded-lg" :class="m.tone"><q-icon :name="m.icon" size="22px" /></span>
+                    <div>
+                        <p class="m-0 text-caption text-grey-7">{{ m.label }}</p>
+                        <p class="m-0 text-h5 leading-tight">{{ m.value }}</p>
+                    </div>
+                </q-card-section>
+            </q-card>
         </div>
 
-        <!-- Catégories -->
-        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-            <div class="bg-emerald-50 border-b border-emerald-100 px-5 py-3 flex items-center justify-between">
-                <h2 class="text-base font-bold text-emerald-700">Catégories</h2>
-                <span class="text-xs text-gray-400">{{ categories.length }} catégorie{{ categories.length !== 1 ? 's' : '' }}</span>
+        <!-- Utilisateurs et rôles -->
+        <q-card flat class="overflow-hidden">
+            <q-card-section class="flex items-center justify-between gap-3">
+                <SectionTitle icon="mdi-account-key-outline" title="Utilisateurs" />
+                <span class="text-caption text-grey-7">{{ users.length }} compte{{ users.length !== 1 ? 's' : '' }}</span>
+            </q-card-section>
+            <q-banner v-if="userError" dense class="bg-red-1 text-negative mx-4 mb-2 rounded-borders">{{ userError }}</q-banner>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-body2">
+                    <thead>
+                        <tr class="border-y border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                            <th class="px-5 py-2.5 font-medium">Utilisateur</th>
+                            <th class="px-3 py-2.5 font-medium">EDL</th>
+                            <th class="px-5 py-2.5 font-medium" style="width: 12rem">Rôle</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="u in users" :key="u.id" class="border-b border-slate-100 last:border-0">
+                            <td class="px-5 py-2.5">
+                                <p class="m-0 font-medium text-slate-900">{{ u.name }}<span v-if="u.id === me?.id" class="ml-1.5 text-xs text-slate-400">(vous)</span></p>
+                                <p class="m-0 text-xs text-slate-500">{{ u.email }}</p>
+                            </td>
+                            <td class="px-3 py-2.5 text-slate-700">{{ u.edls_count }}</td>
+                            <td class="px-5 py-2">
+                                <q-select :model-value="u.role" :options="ROLE_OPTIONS" emit-value map-options outlined dense options-dense
+                                    :loading="savingUserId === u.id" :aria-label="`Rôle de ${u.name}`" @update:model-value="(role) => changeRole(u, role)" />
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-
-            <!-- Formulaire ajout -->
-            <div class="px-5 py-4 border-b border-gray-100">
-                <form @submit.prevent="addCategory" class="flex flex-wrap gap-3 items-end">
-                    <div class="flex-1 min-w-[160px]">
-                        <label class="block text-xs font-semibold text-gray-500 mb-1">Nom</label>
-                        <input v-model="newCat.name" type="text" placeholder="ex : Résidence du Parc"
-                            class="field-input text-sm py-2"
-                            :class="{ '!border-red-400': catError }"
-                            maxlength="80">
-                        <p v-if="catError" class="text-red-500 text-xs mt-1">{{ catError }}</p>
-                    </div>
-                    <div class="shrink-0">
-                        <label class="block text-xs font-semibold text-gray-500 mb-1">Couleur</label>
-                        <input v-model="newCat.color" type="color"
-                            class="h-9 w-14 rounded-xl border border-gray-200 cursor-pointer p-0.5 bg-white">
-                    </div>
-                    <button type="submit" :disabled="catAdding"
-                        class="btn-primary py-2 px-4 text-sm shrink-0">
-                        <svg v-if="!catAdding" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                        <svg v-else class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
-                        Ajouter
-                    </button>
-                </form>
-            </div>
-
-            <!-- Liste catégories -->
-            <div v-if="categories.length === 0" class="px-5 py-8 text-center text-sm text-gray-400">
-                Aucune catégorie pour l'instant.
-            </div>
-            <ul v-else class="divide-y divide-gray-100">
-                <li v-for="cat in categories" :key="cat.id"
-                    class="flex items-center justify-between gap-3 px-5 py-3">
-                    <div class="flex items-center gap-3">
-                        <span class="inline-block w-4 h-4 rounded-full shrink-0 border border-white/50 shadow-sm"
-                            :style="`background:${cat.color}`"></span>
-                        <span class="text-sm font-semibold text-gray-800">{{ cat.name }}</span>
-                    </div>
-                    <button @click="deleteCategory(cat)"
-                        class="text-gray-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-lg transition"
-                        :aria-label="`Supprimer ${cat.name}`">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                        </svg>
-                    </button>
-                </li>
-            </ul>
-        </div>
+            <p class="m-0 border-t border-slate-100 px-5 py-3 text-caption text-grey-7">
+                <strong>Administrateur</strong> : accède à tous les états des lieux et à cette page.
+                <strong>Technicien</strong> : ne voit que les états des lieux qu'il a créés.
+            </p>
+        </q-card>
 
         <!-- Journal d'activité -->
-        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-            <div class="bg-slate-50 border-b border-gray-100 px-5 py-3 flex items-center justify-between">
-                <h2 class="text-base font-bold text-gray-700">Journal d'activité</h2>
+        <q-card flat bordered>
+            <q-card-section class="flex items-center justify-between gap-3 flex-wrap">
+                <SectionTitle icon="mdi-format-list-bulleted" title="Journal d'activité" />
                 <div class="flex items-center gap-3">
-                    <span class="text-xs text-gray-400">{{ logs.length }} entrée{{ logs.length !== 1 ? 's' : '' }}</span>
-                    <button @click="loadLogs" :disabled="logsLoading"
-                        class="text-xs font-semibold text-indigo-500 hover:text-indigo-700 transition disabled:opacity-40">
-                        ↺ Rafraîchir
-                    </button>
+                    <span class="text-caption text-grey-7">{{ logs.length }} entrée{{ logs.length !== 1 ? 's' : '' }}</span>
+                    <q-btn outline dense no-caps color="grey-8" icon="mdi-refresh" label="Rafraîchir" class="px-3" :disable="logsLoading" @click="loadLogs" />
                 </div>
-            </div>
-
-            <div v-if="logsLoading" class="px-5 py-8 text-center text-sm text-gray-400">
-                <svg class="w-5 h-5 animate-spin mx-auto mb-2 text-indigo-400" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
-                Chargement…
-            </div>
-            <div v-else-if="logs.length === 0" class="px-5 py-10 text-center text-sm text-gray-400">
-                Aucune activité enregistrée pour l'instant.
-            </div>
-            <ul v-else class="divide-y divide-gray-100 max-h-[540px] overflow-y-auto">
-                <li v-for="log in logs" :key="log.id" class="flex items-start gap-3 px-5 py-3.5 hover:bg-gray-50/70 transition">
-                    <!-- Icône action -->
-                    <span class="mt-0.5 shrink-0 inline-flex items-center justify-center w-8 h-8 rounded-xl"
-                        :class="logIconClass(log.action)">
-                        <svg v-if="log.action === 'edl_completed'" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                        <svg v-else-if="log.action === 'edl_deleted'" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                        <svg v-else-if="log.action === 'category_created'" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
-                        <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                    </span>
-                    <!-- Contenu -->
-                    <div class="flex-1 min-w-0">
-                        <div class="flex items-center justify-between gap-2 flex-wrap">
-                            <p class="text-sm font-semibold text-gray-800">
-                                {{ logLabel(log.action) }}
-                                <span v-if="log.details?.type"
-                                    class="ml-1 text-xs font-medium px-1.5 py-0.5 rounded-full"
-                                    :class="log.details.type === 'entrant'
-                                        ? 'bg-emerald-100 text-emerald-700'
-                                        : 'bg-amber-100 text-amber-700'">
-                                    {{ log.details.type }}
-                                </span>
-                            </p>
-                            <time class="text-xs text-gray-400 shrink-0">{{ formatLogDate(log.created_at) }}</time>
-                        </div>
-                        <p class="text-xs text-gray-500 mt-0.5 truncate">{{ logDetail(log) }}</p>
-                        <p v-if="log.user" class="text-xs text-gray-400 mt-0.5">{{ log.user.name }}</p>
-                    </div>
-                </li>
-            </ul>
-        </div>
-
+            </q-card-section>
+            <q-separator />
+            <div v-if="logsLoading" class="py-8 flex justify-center"><q-spinner color="primary" size="32px" /></div>
+            <p v-else-if="logs.length === 0" class="py-8 text-center text-body2 text-grey-7 m-0">Aucune activité enregistrée pour l'instant.</p>
+            <q-list v-else separator class="max-h-[540px] overflow-y-auto">
+                <q-item v-for="log in logs" :key="log.id" class="items-start">
+                    <q-item-section avatar top>
+                        <span class="inline-flex items-center justify-center size-8 rounded-lg" :class="logTone(log.action)">
+                            <q-icon :name="logIcon(log.action)" size="20px" />
+                        </span>
+                    </q-item-section>
+                    <q-item-section>
+                        <q-item-label class="font-medium">
+                            {{ logLabel(log.action) }}
+                            <AppBadge v-if="log.details?.type" :tone="log.details.type === 'entrant' ? 'green' : 'amber'" class="ml-1">{{ log.details.type }}</AppBadge>
+                        </q-item-label>
+                        <q-item-label caption lines="1">{{ logDetail(log) }}</q-item-label>
+                        <q-item-label v-if="log.user" caption>{{ log.user.name }}</q-item-label>
+                    </q-item-section>
+                    <q-item-section side top>
+                        <time class="text-caption text-grey-7">{{ formatLogDate(log.created_at) }}</time>
+                    </q-item-section>
+                </q-item>
+            </q-list>
+        </q-card>
     </div>
 
-    <div v-else class="text-center py-16 text-red-400">
-        <p>Impossible de charger les informations système.</p>
-    </div>
+    <p v-else class="text-center py-16 text-negative">{{ forbidden ? 'Cette page est réservée aux administrateurs.' : 'Impossible de charger les informations système.' }}</p>
 </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, computed, inject, onMounted } from 'vue'
 import axios from 'axios'
+import SectionTitle from '@/components/SectionTitle.vue'
+import PageHeader from '@/components/PageHeader.vue'
+import AppBadge from '@/components/AppBadge.vue'
 
 const loading = ref(true)
 const info = ref(null)
+const me = inject('user', ref(null))
+const forbidden = ref(false)
 
-// ── Catégories ───────────────────────────────────────
-const categories = ref([])
-const newCat = reactive({ name: '', color: '#6366f1' })
-const catAdding = ref(false)
-const catError = ref('')
-
-async function loadCategories() {
-    const { data } = await axios.get('/api/categories')
-    categories.value = data
-}
-
-async function addCategory() {
-    catError.value = ''
-    if (!newCat.name.trim()) { catError.value = 'Le nom est requis.'; return }
-    catAdding.value = true
-    try {
-        const { data } = await axios.post('/api/categories', { name: newCat.name.trim(), color: newCat.color })
-        categories.value.push(data)
-        newCat.name = ''
-        newCat.color = '#6366f1'
-    } catch (e) {
-        catError.value = e.response?.data?.errors?.name?.[0] ?? 'Erreur lors de la création.'
-    } finally {
-        catAdding.value = false
-    }
-}
-
-async function deleteCategory(cat) {
-    if (!confirm(`Supprimer la catégorie "${cat.name}" ?\nLes EDL associés ne seront pas supprimés.`)) return
-    try {
-        await axios.delete(`/api/categories/${cat.id}`)
-        categories.value = categories.value.filter(c => c.id !== cat.id)
-    } catch (e) {
-        console.error('Erreur suppression catégorie', e)
-    }
-}
+const metrics = computed(() => {
+    const st = info.value?.stats
+    if (!st) return []
+    return [
+        { label: 'EDL total', value: st.edl_total, icon: 'mdi-clipboard-text-outline', tone: 'bg-slate-100 text-slate-600' },
+        { label: 'Entrants', value: st.edl_entrant, icon: 'mdi-key-variant', tone: 'bg-emerald-50 text-emerald-600' },
+        { label: 'Sortants', value: st.edl_sortant, icon: 'mdi-logout', tone: 'bg-amber-50 text-amber-600' },
+        { label: 'En cours', value: st.edl_en_cours, icon: 'mdi-clock-outline', tone: 'bg-blue-50 text-blue-600' },
+    ]
+})
 
 onMounted(() => {
-    // Lance les 3 requêtes en parallèle sans bloquer
+    // Lance les requêtes en parallèle sans bloquer
     axios.get('/api/admin/info')
         .then(r => { info.value = r.data })
-        .catch(e => console.error('Erreur admin/info', e))
+        .catch(e => { forbidden.value = e.response?.status === 403; console.error('Erreur admin/info', e) })
         .finally(() => { loading.value = false })
 
-    loadCategories()
     loadLogs()
+    loadUsers()
 })
+
+// ── Utilisateurs et rôles ───────────────────────────
+const ROLE_OPTIONS = [
+    { label: 'Administrateur', value: 'admin' },
+    { label: 'Technicien', value: 'technicien' },
+]
+const users = ref([])
+const userError = ref('')
+const savingUserId = ref(null)
+
+async function loadUsers() {
+    try {
+        users.value = (await axios.get('/api/admin/users')).data
+    } catch (e) {
+        console.error('Erreur chargement utilisateurs', e)
+    }
+}
+
+async function changeRole(user, role) {
+    userError.value = ''
+    savingUserId.value = user.id
+    try {
+        await axios.patch(`/api/admin/users/${user.id}`, { role })
+        user.role = role
+        loadLogs()
+    } catch (e) {
+        userError.value = e.response?.data?.message || 'Impossible de modifier le rôle.'
+    } finally {
+        savingUserId.value = null
+    }
+}
 
 // ── Journal d'activité ──────────────────────────────
 const logs = ref([])
@@ -249,6 +191,13 @@ const LOG_LABELS = {
     edl_deleted:      'EDL supprimé',
     category_created: 'Catégorie créée',
     category_deleted: 'Catégorie supprimée',
+    edl_archived:     'EDL archivé',
+    edl_unarchived:   'EDL désarchivé',
+    edl_duplicated:   'EDL dupliqué',
+    user_login:       'Connexion',
+    user_logout:      'Déconnexion',
+    login_failed:     'Connexion échouée',
+    user_role_changed: 'Rôle modifié',
 }
 
 function logLabel(action) {
@@ -258,8 +207,16 @@ function logLabel(action) {
 function logDetail(log) {
     if (log.entity_type === 'edl' && log.details) {
         const parts = [log.details.adresse, log.details.ville].filter(Boolean)
-        if (log.details.locataire) parts.push(`— ${log.details.locataire}`)
+        if (log.details.locataire) parts.push(`- ${log.details.locataire}`)
         return parts.join(', ') || `EDL #${log.entity_id}`
+    }
+    if (['user_login', 'user_logout', 'login_failed'].includes(log.action)) {
+        const d = log.details ?? {}
+        return [d.email, d.ip, d.error].filter(Boolean).join(' · ') || `Utilisateur #${log.entity_id ?? '?'}`
+    }
+    if (log.entity_type === 'user' && log.details) {
+        const role = (r) => (r === 'admin' ? 'administrateur' : 'technicien')
+        return `${log.details.name ?? 'Utilisateur #' + log.entity_id} : ${role(log.details.from)} → ${role(log.details.to)}`
     }
     if (log.entity_type === 'category' && log.details) {
         return log.details.name ?? `Catégorie #${log.entity_id}`
@@ -267,15 +224,37 @@ function logDetail(log) {
     return `#${log.entity_id}`
 }
 
-const LOG_ICON_CLASSES = {
-    edl_completed:    'bg-green-100 text-green-600',
-    edl_deleted:      'bg-red-100 text-red-600',
-    category_created: 'bg-emerald-100 text-emerald-600',
-    category_deleted: 'bg-orange-100 text-orange-600',
+const LOG_ICONS = {
+    edl_completed: 'mdi-check-circle-outline',
+    edl_deleted: 'mdi-delete-outline',
+    category_created: 'mdi-tag-outline',
+    edl_archived: 'mdi-archive-outline',
+    edl_unarchived: 'mdi-archive-arrow-up-outline',
+    edl_duplicated: 'mdi-content-copy',
+    user_login: 'mdi-login',
+    user_logout: 'mdi-logout',
+    login_failed: 'mdi-shield-alert-outline',
+    user_role_changed: 'mdi-account-key-outline',
+}
+const LOG_TONES = {
+    edl_completed: 'bg-green-100 text-green-700',
+    edl_deleted: 'bg-red-100 text-red-700',
+    category_created: 'bg-sky-100 text-sky-700',
+    edl_archived: 'bg-amber-100 text-amber-700',
+    edl_unarchived: 'bg-amber-100 text-amber-700',
+    edl_duplicated: 'bg-sky-100 text-sky-700',
+    user_login: 'bg-slate-100 text-slate-600',
+    user_logout: 'bg-slate-100 text-slate-600',
+    login_failed: 'bg-red-100 text-red-700',
+    user_role_changed: 'bg-cyan-100 text-cyan-700',
 }
 
-function logIconClass(action) {
-    return LOG_ICON_CLASSES[action] ?? 'bg-gray-100 text-gray-500'
+function logIcon(action) {
+    return LOG_ICONS[action] ?? 'mdi-close-circle-outline'
+}
+
+function logTone(action) {
+    return LOG_TONES[action] ?? 'bg-slate-100 text-slate-500'
 }
 
 function formatLogDate(iso) {

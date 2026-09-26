@@ -17,7 +17,6 @@ class EdlFactory extends Factory
     {
         return [
             'user_id'          => User::factory(),
-            'category_id'      => null,
             'type'             => $this->faker->randomElement(['entrant', 'sortant']),
             'adresse'          => $this->faker->streetAddress(),
             'ville'            => $this->faker->city(),

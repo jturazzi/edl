@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /**
  * @property int $id
  * @property int|null $user_id
- * @property int|null $category_id
  * @property string $type
  * @property string|null $adresse
  * @property string|null $ville
@@ -18,7 +17,16 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $technicien_nom
  * @property string|null $technicien_email
  * @property array<array-key, mixed>|null $survey_data
+ * @property list<string>|null $steps
+ * @property int $survey_rev
+ * @property \Illuminate\Support\Carbon|null $signed_at
+ * @property string|null $pdf_hash
+ * @property list<array{label: string, amount: float}>|null $retenues
+ * @property \Illuminate\Support\Carbon|null $archived_at
  * @property string|null $signature
+ * @property string|null $signature_technicien
+ * @property bool $locataire_absent
+ * @property int|null $entrant_id
  * @property string|null $pdf_path
  * @property string|null $locataire_nom
  * @property string|null $locataire_prenom
@@ -27,7 +35,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property \Illuminate\Support\Carbon|null $date_edl
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Category|null $category
  * @property-read string $adresse_complete
  * @property-read string $agent_name
  * @property-read string $numero
@@ -40,7 +47,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Edl newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Edl query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Edl whereAdresse($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Edl whereCategoryId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Edl whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Edl whereDateEdl($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Edl whereId($value)
@@ -69,28 +75,40 @@ class Edl extends Model
         'technicien_nom',
         'technicien_email',
         'survey_data',
+        'survey_rev',
+        'steps',
+        'retenues',
+        'archived_at',
         'signature',
+        'signature_technicien',
+        'locataire_absent',
+        'entrant_id',
         'pdf_path',
+        'pdf_hash',
+        'signed_at',
         'locataire_nom',
         'locataire_prenom',
         'locataire_email',
         'status',
         'date_edl',
         'user_id',
-        'category_id',
     ];
+
+    /** Les signatures (base64 volumineuses) ne sont jamais renvoyées dans les réponses JSON. */
+    protected $hidden = ['signature', 'signature_technicien'];
 
     protected $casts = [
         'survey_data' => 'array',
+        'steps'       => 'array',
+        'retenues'    => 'array',
+        'archived_at' => 'datetime',
+        'signed_at'   => 'datetime',
+        'survey_rev'  => 'integer',
         'date_edl'    => 'datetime',
+        'locataire_absent' => 'boolean',
     ];
 
     protected $appends = ['type_label', 'locataire_full_name', 'adresse_complete', 'agent_name', 'numero'];
-
-    public function category(): BelongsTo
-    {
-        return $this->belongsTo(Category::class);
-    }
 
     /**
      * Utilisateur ayant réalisé l'EDL.
@@ -98,6 +116,33 @@ class Edl extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * EDL entrant auquel ce sortant se rapporte (comparaison des états).
+     *
+     * @return BelongsTo<Edl, $this>
+     */
+    public function entrant(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'entrant_id');
+    }
+
+    /** Un EDL terminé (signé) n'est plus modifiable. */
+    public function isLocked(): bool
+    {
+        return $this->status === 'complete';
+    }
+
+    /**
+     * Exclut les EDL archivés.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<Edl>  $query
+     * @return \Illuminate\Database\Eloquent\Builder<Edl>
+     */
+    public function scopeNotArchived($query)
+    {
+        return $query->whereNull('archived_at');
     }
 
     public function photos(): HasMany

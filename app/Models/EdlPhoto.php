@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $question_key
  * @property string $room
  * @property string $photo_path
+ * @property string|null $caption
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Edl $edl
@@ -36,6 +37,7 @@ class EdlPhoto extends Model
         'question_key',
         'room',
         'photo_path',
+        'caption',
     ];
 
     public function edl(): BelongsTo

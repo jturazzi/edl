@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
@@ -30,13 +31,15 @@ class AuthController extends Controller
     }
 
     /**
-     * Callback Microsoft — création ou mise à jour de l'utilisateur.
+     * Callback Microsoft - création ou mise à jour de l'utilisateur.
      */
     public function handleMicrosoftCallback()
     {
         try {
             $microsoftUser = Socialite::driver('microsoft')->user();
         } catch (\Exception $e) {
+            ActivityLogger::loginFailed(['ip' => request()->ip(), 'error' => mb_substr($e->getMessage(), 0, 200)]);
+
             return redirect('/login?error=' . urlencode('Erreur lors de l\'authentification Microsoft : ' . $e->getMessage()));
         }
 
@@ -51,7 +54,17 @@ class AuthController extends Controller
             ]
         );
 
+        // Promotion automatique des adresses listées dans ADMIN_EMAILS
+        if ($user->email && in_array(strtolower($user->email), config('app.admin_emails', []), true) && ! $user->isAdmin()) {
+            $user->forceFill(['role' => User::ROLE_ADMIN])->save();
+        }
+
         Auth::login($user, remember: true);
+        ActivityLogger::userLogin($user->id, [
+            'email'      => $user->email,
+            'ip'         => request()->ip(),
+            'user_agent' => mb_substr((string) request()->userAgent(), 0, 160),
+        ]);
 
         return redirect()->intended(route('home'));
     }
@@ -61,6 +74,10 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
+        if ($request->user()) {
+            ActivityLogger::userLogout($request->user()->id, ['ip' => $request->ip()]);
+        }
+
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

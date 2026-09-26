@@ -21,7 +21,11 @@ return [
 
     'version' => env('APP_VERSION', '2.0.0'),
 
-    'version_check_token' => env('VERSION_CHECK_TOKEN'),
+    // Adresses e-mail (séparées par des virgules) promues administrateur à la connexion.
+    'admin_emails' => array_values(array_filter(array_map(
+        fn ($email) => strtolower(trim($email)),
+        explode(',', (string) env('ADMIN_EMAILS', ''))
+    ))),
 
     /*
     |--------------------------------------------------------------------------

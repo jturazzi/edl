@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $firstname
  * @property string|null $lastname
  * @property string $email
+ * @property string $role
  * @property string|null $remember_token
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -39,6 +40,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
+
+    public const ROLE_ADMIN = 'admin';
+
+    public const ROLE_TECHNICIEN = 'technicien';
+
+    public const ROLES = [self::ROLE_ADMIN, self::ROLE_TECHNICIEN];
 
     /**
      * The attributes that are mass assignable.
@@ -73,6 +80,11 @@ class User extends Authenticatable
             return trim("{$this->firstname} {$this->lastname}");
         }
         return $this->name;
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === self::ROLE_ADMIN;
     }
 
     /**

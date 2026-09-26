@@ -44,7 +44,7 @@ RUN apk add --no-cache \
 
 # Alpine's ca-certificates bundle is missing the legacy "DigiCert Global Root CA",
 # which signs "DigiCert Cloud Services CA-1" used by mail.protection.outlook.com
-# (Microsoft 365 SMTP relay) — without it, STARTTLS fails with
+# (Microsoft 365 SMTP relay) - without it, STARTTLS fails with
 # "unable to get local issuer certificate".
 COPY docker/certs/DigiCertGlobalRootCA.pem /usr/local/share/ca-certificates/DigiCertGlobalRootCA.crt
 RUN update-ca-certificates

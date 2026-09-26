@@ -18,7 +18,7 @@ class ActivityLogControllerTest extends TestCase
 
     public function test_index_returns_logs_with_user_info(): void
     {
-        $user = User::factory()->create(['name' => 'Jean Dupont']);
+        $user = User::factory()->admin()->create(['name' => 'Jean Dupont']);
         $this->actingAs($user);
 
         ActivityLog::create([
@@ -39,7 +39,7 @@ class ActivityLogControllerTest extends TestCase
 
     public function test_index_returns_null_user_when_log_has_no_user(): void
     {
-        $this->actingAs(User::factory()->create());
+        $this->actingAs(User::factory()->admin()->create());
 
         ActivityLog::create([
             'user_id'     => null,
@@ -56,7 +56,7 @@ class ActivityLogControllerTest extends TestCase
 
     public function test_index_orders_logs_by_latest_first(): void
     {
-        $this->actingAs(User::factory()->create());
+        $this->actingAs(User::factory()->admin()->create());
 
         $older = ActivityLog::create([
             'action' => 'edl_deleted', 'entity_type' => 'edl', 'entity_id' => 1,
@@ -77,7 +77,7 @@ class ActivityLogControllerTest extends TestCase
 
     public function test_index_limits_results_to_200(): void
     {
-        $this->actingAs(User::factory()->create());
+        $this->actingAs(User::factory()->admin()->create());
 
         ActivityLog::factory()->count(5)->create();
 

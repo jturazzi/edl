@@ -32,6 +32,12 @@ return [
     |
     */
 
+    /*
+    | Magasin des limiteurs de requêtes (throttle) : un compteur est écrit à chaque requête ;
+    | avec SQLite cela provoquait des « database is locked », d'où un magasin fichier dédié.
+    */
+    'limiter' => env('CACHE_LIMITER_STORE', 'file'),
+
     'stores' => [
 
         'array' => [

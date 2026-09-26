@@ -1,0 +1,467 @@
+[
+  {
+    "type": "compteurs",
+    "key": "compteurs",
+    "icon": "📊",
+    "title": "Compteurs & Clés"
+  },
+  {
+    "type": "room",
+    "key": "entree",
+    "icon": "🚪",
+    "title": "Entrée",
+    "elements": [
+      "Sol",
+      "Murs",
+      "Porte palière",
+      "Interphone",
+      "Chauffage",
+      "Fenêtre",
+      "Luminaires",
+      "Prises électrique"
+    ],
+    "etat": [
+      {
+        "value": "bon",
+        "label": "Bon état"
+      },
+      {
+        "value": "usure",
+        "label": "Usure normale"
+      },
+      {
+        "value": "mauvais",
+        "label": "Mauvais état"
+      }
+    ]
+  },
+  {
+    "type": "room",
+    "key": "couloir",
+    "icon": "🚶",
+    "title": "Couloir",
+    "elements": [
+      "Sol",
+      "Murs",
+      "Plafond",
+      "Porte",
+      "Chauffage",
+      "Fenêtre",
+      "Luminaires",
+      "Prises électrique"
+    ],
+    "etat": [
+      {
+        "value": "bon",
+        "label": "Bon état"
+      },
+      {
+        "value": "usure",
+        "label": "Usure normale"
+      },
+      {
+        "value": "mauvais",
+        "label": "Mauvais état"
+      }
+    ]
+  },
+  {
+    "type": "room",
+    "key": "cuisine",
+    "icon": "🍳",
+    "title": "Cuisine",
+    "elements": [
+      "Plafond",
+      "Sol",
+      "Murs",
+      "Aération",
+      "Évier",
+      "Robinetterie",
+      "Chaudière",
+      "Plaque de cuisson",
+      "Fenêtre",
+      "Luminaires",
+      "Prises électrique"
+    ],
+    "etat": [
+      {
+        "value": "bon",
+        "label": "Bon état"
+      },
+      {
+        "value": "usure",
+        "label": "Usure normale"
+      },
+      {
+        "value": "mauvais",
+        "label": "Mauvais état"
+      }
+    ]
+  },
+  {
+    "type": "room",
+    "key": "sejour",
+    "icon": "🛋️",
+    "title": "Séjour",
+    "elements": [
+      "Sol",
+      "Murs",
+      "Plafond",
+      "Chauffage",
+      "Fenêtre",
+      "Volet/Store",
+      "Meuble(s)",
+      "Luminaires",
+      "Prises électrique"
+    ],
+    "etat": [
+      {
+        "value": "bon",
+        "label": "Bon état"
+      },
+      {
+        "value": "usure",
+        "label": "Usure normale"
+      },
+      {
+        "value": "mauvais",
+        "label": "Mauvais état"
+      }
+    ]
+  },
+  {
+    "type": "room",
+    "key": "wc",
+    "icon": "🚽",
+    "title": "WC",
+    "elements": [
+      "Cuvette WC",
+      "Abattant",
+      "Chasse d'eau",
+      "Lavabo",
+      "Ouverture",
+      "Luminaires",
+      "Prises électrique"
+    ],
+    "etat": [
+      {
+        "value": "bon",
+        "label": "Bon état"
+      },
+      {
+        "value": "usure",
+        "label": "Usure normale"
+      },
+      {
+        "value": "mauvais",
+        "label": "Mauvais état"
+      }
+    ]
+  },
+  {
+    "type": "room",
+    "key": "sdb",
+    "icon": "🛁",
+    "title": "Salle de bains",
+    "elements": [
+      "Plafond",
+      "Murs",
+      "Sol",
+      "Porte",
+      "Chauffage",
+      "Fenêtre",
+      "VMC",
+      "Colonne lavabo",
+      "Robinet/mélangeur Lavabo",
+      "Douche/baignoire",
+      "Robinet/mélangeur douche",
+      "Inverseur douche/baignoire",
+      "Flexible et douchette douche",
+      "Joint lavabo",
+      "Joint douche/baignoire",
+      "Luminaires",
+      "Prises électrique"
+    ],
+    "etat": [
+      {
+        "value": "bon",
+        "label": "Bon état"
+      },
+      {
+        "value": "usure",
+        "label": "Usure normale"
+      },
+      {
+        "value": "mauvais",
+        "label": "Mauvais état"
+      }
+    ]
+  },
+  {
+    "type": "room",
+    "key": "chambre1",
+    "icon": "🛏️",
+    "title": "Chambre 1",
+    "elements": [
+      "Sol",
+      "Murs",
+      "Plafond",
+      "Porte",
+      "Chauffage",
+      "Fenêtre",
+      "Volets/Stores",
+      "Luminaires",
+      "Prises électrique"
+    ],
+    "etat": [
+      {
+        "value": "bon",
+        "label": "Bon état"
+      },
+      {
+        "value": "usure",
+        "label": "Usure normale"
+      },
+      {
+        "value": "mauvais",
+        "label": "Mauvais état"
+      }
+    ]
+  },
+  {
+    "type": "room",
+    "key": "chambre2",
+    "icon": "🛏️",
+    "title": "Chambre 2",
+    "elements": [
+      "Sol",
+      "Murs",
+      "Plafond",
+      "Porte",
+      "Chauffage",
+      "Fenêtre",
+      "Volets/Stores",
+      "Luminaires",
+      "Prises électrique"
+    ],
+    "etat": [
+      {
+        "value": "bon",
+        "label": "Bon état"
+      },
+      {
+        "value": "usure",
+        "label": "Usure normale"
+      },
+      {
+        "value": "mauvais",
+        "label": "Mauvais état"
+      }
+    ]
+  },
+  {
+    "type": "room",
+    "key": "chambre3",
+    "icon": "🛏️",
+    "title": "Chambre 3",
+    "elements": [
+      "Sol",
+      "Murs",
+      "Plafond",
+      "Porte",
+      "Chauffage",
+      "Fenêtre",
+      "Volets/Stores",
+      "Luminaires",
+      "Prises électrique"
+    ],
+    "etat": [
+      {
+        "value": "bon",
+        "label": "Bon état"
+      },
+      {
+        "value": "usure",
+        "label": "Usure normale"
+      },
+      {
+        "value": "mauvais",
+        "label": "Mauvais état"
+      }
+    ]
+  },
+  {
+    "type": "checklist",
+    "key": "volets",
+    "icon": "🪟",
+    "title": "Volets",
+    "items": [
+      "Séjour",
+      "Chambre 1",
+      "Chambre 2",
+      "Chambre 3"
+    ],
+    "options": [
+      {
+        "value": "oui",
+        "label": "Fonctionne"
+      },
+      {
+        "value": "non",
+        "label": "Ne fonctionne pas"
+      }
+    ]
+  },
+  {
+    "type": "inventory",
+    "key": "vaisselle",
+    "icon": "🍽️",
+    "title": "Vaisselle",
+    "items": [
+      "Passoire",
+      "Saladier",
+      "Plat four",
+      "Assiette plate",
+      "Assiette creuse",
+      "Bol",
+      "Tasse",
+      "Verre",
+      "Fourchette",
+      "Couteau",
+      "Cuillère à soupe",
+      "Cuillère à café",
+      "Couvercle",
+      "Poêle",
+      "Econome",
+      "Couteau service",
+      "Ouvre-boîte",
+      "Spatule en bois",
+      "Casserole",
+      "Dessous de plat",
+      "Range couvert",
+      "Balai",
+      "Carafe",
+      "Égouttoir vaisselle"
+    ],
+    "withDimension": false
+  },
+  {
+    "type": "inventory",
+    "key": "petit_materiel",
+    "icon": "🧹",
+    "title": "Petit matériel",
+    "items": [
+      "Balayette + pelle",
+      "Seau",
+      "Aspirateur",
+      "Cafetière",
+      "Balai brosse",
+      "Poubelle",
+      "Poubelle salle de bain",
+      "Balayette WC",
+      "Table à repasser"
+    ],
+    "withDimension": false
+  },
+  {
+    "type": "inventory",
+    "key": "literie",
+    "icon": "🛏️",
+    "title": "Literie & Lingerie",
+    "items": [
+      "Sommier 90x190",
+      "Sommier 140x190",
+      "Matelas",
+      "Couverture",
+      "Drap housse",
+      "Drap dessus",
+      "Alèze",
+      "Housse couette",
+      "Couette",
+      "Oreillers",
+      "Taie d'oreillers",
+      "Dessus de lit",
+      "Rideaux + Tringles",
+      "Torchon vaisselle",
+      "Nappe"
+    ],
+    "withDimension": true
+  },
+  {
+    "type": "inventory",
+    "key": "mobilier",
+    "icon": "🪑",
+    "title": "Mobilier",
+    "items": [
+      "Cuisinière",
+      "Machine à laver",
+      "Bureau",
+      "Armoire",
+      "Téléphone",
+      "Chevet",
+      "Meuble rangement vaisselle",
+      "Table de cuisine",
+      "Chaises",
+      "Canapé",
+      "Table de salon",
+      "Meuble de TV",
+      "Commode",
+      "Chaise de bureau"
+    ],
+    "withDimension": false
+  },
+  {
+    "type": "inventory_multi",
+    "key": "materiel_divers",
+    "icon": "💡",
+    "title": "Matériel & Luminaires",
+    "sections": [
+      {
+        "title": "Matériel ménager",
+        "groupKey": "menager",
+        "items": [
+          "Fer à repasser",
+          "TV",
+          "Télécommande TV"
+        ]
+      },
+      {
+        "title": "Électroménager",
+        "groupKey": "electro",
+        "items": [
+          "Réfrigérateur / Congélateur",
+          "Micro-ondes"
+        ]
+      },
+      {
+        "title": "Luminaires",
+        "groupKey": "luminaire",
+        "items": [
+          "Lampe de chevet (Salon)",
+          "Luminaire (Salon)",
+          "Lampe de salon",
+          "Luminaire (Chambre)",
+          "Autre luminaire"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "synthese",
+    "key": "synthese",
+    "icon": "📝",
+    "title": "Synthèse",
+    "fields": [
+      {
+        "key": "nettoyage_entreprise",
+        "label": "Nettoyage entreprise spécialisée",
+        "description": "Un nettoyage par une entreprise spécialisée est-il nécessaire ?"
+      },
+      {
+        "key": "depot_garantie",
+        "label": "Dépôt de garantie à restituer",
+        "description": "Le dépôt de garantie doit-il être restitué à la personne concernée ?"
+      }
+    ]
+  }
+]

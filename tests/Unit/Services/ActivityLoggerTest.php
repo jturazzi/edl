@@ -66,25 +66,4 @@ class ActivityLoggerTest extends TestCase
         ]);
     }
 
-    public function test_category_created_logs_expected_action(): void
-    {
-        ActivityLogger::categoryCreated(3, ['name' => 'X']);
-
-        $this->assertDatabaseHas('activity_logs', [
-            'action'      => 'category_created',
-            'entity_type' => 'category',
-            'entity_id'   => 3,
-        ]);
-    }
-
-    public function test_category_deleted_logs_expected_action(): void
-    {
-        ActivityLogger::categoryDeleted(3, ['name' => 'X']);
-
-        $this->assertDatabaseHas('activity_logs', [
-            'action'      => 'category_deleted',
-            'entity_type' => 'category',
-            'entity_id'   => 3,
-        ]);
-    }
 }

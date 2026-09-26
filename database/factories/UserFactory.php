@@ -22,4 +22,10 @@ class UserFactory extends Factory
             'email'        => $this->faker->unique()->safeEmail(),
         ];
     }
+
+    /** Utilisateur administrateur (les autres sont des techniciens par défaut). */
+    public function admin(): static
+    {
+        return $this->state(fn () => ['role' => 'admin']);
+    }
 }

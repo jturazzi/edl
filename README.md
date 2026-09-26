@@ -256,6 +256,27 @@ npm audit          # Vulnérabilités connues des dépendances JS
 
 Le script [update-composer-npm.sh](update-composer-npm.sh) met à jour les dépendances puis lance ces deux audits.
 
+### Tests
+
+```bash
+php artisan test        # tests PHP (PHPUnit)
+
+npm run build           # les tests navigateur utilisent les assets compilés
+npx playwright install chromium   # une seule fois
+npm run test:e2e        # tests navigateur (Playwright)
+```
+
+Les tests navigateur ([tests/e2e/](tests/e2e/)) lancent leur propre serveur sur le port 8799 avec
+l'environnement `e2e` ([.env.e2e](.env.e2e)) et une base SQLite jetable (`database/e2e.sqlite`) : votre base de
+développement n'est jamais touchée. Comme la connexion Microsoft ne s'automatise pas, l'environnement `e2e`
+expose une route `/__e2e/login/{role}` qui n'existe dans aucun autre environnement (un test PHP le vérifie).
+Le service d'adresses public est simulé : les tests ne nécessitent aucun accès réseau.
+
+### Thème
+
+L'interface suit le thème clair ou sombre de l'appareil ; le bouton en bas de la barre latérale permet de forcer
+l'un ou l'autre (choix mémorisé dans le navigateur).
+
 ---
 
 ## Licence

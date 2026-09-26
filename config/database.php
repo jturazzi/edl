@@ -37,9 +37,11 @@ return [
             'database' => env('DB_DATABASE', storage_path('app/private/database.sqlite')),
             'prefix' => '',
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
-            'busy_timeout' => null,
-            'journal_mode' => null,
-            'synchronous' => null,
+            // Plusieurs requêtes simultanées (sessions, cache, EDL) écrivent dans le même fichier :
+            // on attend le verrou (5 s) au lieu d'échouer aussitôt avec « database is locked ».
+            'busy_timeout' => env('DB_BUSY_TIMEOUT', 5000),
+            'journal_mode' => env('DB_JOURNAL_MODE'),
+            'synchronous' => env('DB_SYNCHRONOUS'),
             'transaction_mode' => 'DEFERRED',
         ],
 

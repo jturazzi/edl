@@ -1,22 +1,21 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-import LoginPage from '../pages/LoginPage.vue'
-import HomePage from '../pages/HomePage.vue'
+// Pages les plus utilisées : dans le bundle principal ; les autres se chargent à la demande
+import DashboardPage from '../pages/DashboardPage.vue'
 import FormPage from '../pages/FormPage.vue'
-import SignaturePage from '../pages/SignaturePage.vue'
-import EdlPage from '../pages/EdlPage.vue'
-import HistoryPage from '../pages/HistoryPage.vue'
-import AdminInfoPage from '../pages/AdminInfoPage.vue'
 
 const routes = [
-    { path: '/login',                      name: 'login',         component: LoginPage, meta: { guest: true } },
-    { path: '/',                           name: 'home',          component: HomePage },
-    { path: '/edl/:id/formulaire',         name: 'survey',        component: FormPage },
-    { path: '/edl/:id/signature',          name: 'signature',     component: SignaturePage },
-    { path: '/edl/:id',                    name: 'confirmation',  component: EdlPage },
-    { path: '/edl/:id/confirmation',       redirect: to => ({ name: 'confirmation', params: { id: to.params.id } }) },
-    { path: '/historique',                 name: 'history',       component: HistoryPage },
-    { path: '/info',                       name: 'admin.info',    component: AdminInfoPage },
+    { path: '/login',                      name: 'login',         component: () => import('../pages/LoginPage.vue'), meta: { title: 'Connexion', guest: true } },
+    { path: '/',                           name: 'home',          component: DashboardPage, meta: { title: 'Tableau de bord' } },
+    { path: '/nouveau',                    name: 'new',           component: () => import('../pages/HomePage.vue'), meta: { title: 'Nouvel état des lieux' } },
+    { path: '/edl/:id/formulaire',         name: 'survey',        component: FormPage, meta: { title: 'Formulaire' } },
+    { path: '/edl/:id/signature',          name: 'signature',     component: () => import('../pages/SignaturePage.vue'), meta: { title: 'Signature' } },
+    { path: '/edl/:id/comparaison',        name: 'comparison',    component: () => import('../pages/ComparisonPage.vue'), meta: { title: 'Comparaison entrée / sortie' } },
+    { path: '/edl/:id',                    name: 'confirmation',  component: () => import('../pages/EdlPage.vue'), meta: { title: 'État des lieux validé' } },
+    { path: '/edl/:id/confirmation',       redirect: to => ({ name: 'confirmation', params: { id: to.params.id } }), meta: { title: 'État des lieux validé' } },
+    { path: '/logement',                   name: 'logement',      component: () => import('../pages/LogementPage.vue'), meta: { title: 'Historique du logement' } },
+    { path: '/historique',                 name: 'history',       component: () => import('../pages/HistoryPage.vue'), meta: { title: 'Historique' } },
+    { path: '/info',                       name: 'admin.info',    component: () => import('../pages/AdminInfoPage.vue'), meta: { title: 'Administration' } },
 ]
 
 const router = createRouter({

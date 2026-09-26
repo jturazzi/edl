@@ -28,4 +28,10 @@ class SpaRouteTest extends TestCase
 
         $this->get('/edl/42')->assertOk();
     }
+
+    public function test_e2e_login_route_does_not_exist_outside_the_e2e_environment(): void
+    {
+        $this->get('/__e2e/login/admin')->assertRedirect(route('login'));
+        $this->assertGuest();
+    }
 }

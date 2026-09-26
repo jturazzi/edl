@@ -58,7 +58,7 @@
     .hib-label { font-size: 8px; color: rgba(0,0,0,0.55); text-transform: uppercase; letter-spacing: 0.3px; }
     .hib-value { font-size: 10px; font-weight: bold; color: #1e293b; }
 
-    /* ── Bloc informations (supprimé — intégré au header) ─────── */
+    /* ── Bloc informations (supprimé - intégré au header) ─────── */
 
     /* ── Sections ─────────────────────────────────────────────── */
     .section { margin: 0 24px 12px; page-break-inside: avoid; }
@@ -134,7 +134,7 @@
     .signature-body { border: 1px solid #e2e8f0; border-top: none; padding: 14px; }
     .signature-meta { font-size: 9px; color: #64748b; margin-bottom: 10px; }
     .signature-meta strong { color: #1e293b; }
-    .signature-img { max-width: 260px; max-height: 110px; border: 1px solid #e2e8f0; background: #f8fafc; padding: 4px; }
+    .signature-img { max-width: 210px; max-height: 100px; border: 1px solid #e2e8f0; background: #f8fafc; padding: 4px; }
     .signature-empty { color: #94a3b8; font-style: italic; font-size: 10px; }
 
     /* ── Footer fixe ──────────────────────────────────────────── */
@@ -229,7 +229,7 @@
     // 4000px+) qui font que dompdf ignore le max-width/max-height CSS et
     // rend l'image à sa taille native, cassant la mise en page du document.
     $processPhoto = function(string $photoPath): array {
-        $maxDim  = 1400;
+        $maxDim  = 900; // les photos s'affichent à ~150 px : inutile d'embarquer plus
         $mime    = mime_content_type($photoPath) ?: 'image/jpeg';
         $imgInfo = @getimagesize($photoPath);
         $imgW    = $imgInfo ? $imgInfo[0] : 0;
@@ -244,7 +244,7 @@
             };
         }
 
-        $needsGd = $rotation !== 0 || max($imgW, $imgH) > $maxDim;
+        $needsGd = $rotation !== 0 || max($imgW, $imgH) > $maxDim || filesize($photoPath) > 150 * 1024;
 
         if ($needsGd && function_exists('imagecreatefromjpeg')) {
             $res = match($mime) {
@@ -280,7 +280,7 @@
                 }
 
                 ob_start();
-                imagejpeg($res, null, 85);
+                imagejpeg($res, null, 72);
                 $imgData = ob_get_clean();
                 imagedestroy($res);
                 $mime = 'image/jpeg';
@@ -296,6 +296,26 @@
             'src'   => "data:{$mime};base64,{$b64}",
             'class' => ($imgW >= $imgH) ? 'photo-img-landscape' : 'photo-img-portrait',
         ];
+    };
+
+    // Légendes sous les photos : élément concerné (question_key) et légende saisie
+    $photoLegend = function ($photos, array $items, string $group): string {
+        $lines = [];
+        foreach ($photos->values() as $i => $p) {
+            $element = null;
+            foreach ($items as $it) {
+                if ($group . '_' . \Str::slug($it, '_') === $p->question_key) {
+                    $element = $it;
+                    break;
+                }
+            }
+            if ($element === null && ! $p->caption) {
+                continue;
+            }
+            $lines[] = 'Photo ' . ($i + 1) . ($element ? ' · ' . e($element) : '') . ($p->caption ? ' - ' . e($p->caption) : '');
+        }
+
+        return $lines ? '<div style="font-size:8px;color:#475569;padding:0 12px 8px;">' . implode('<br>', $lines) . '</div>' : '';
     };
 
     $roomsConfig = [
@@ -418,11 +438,11 @@
                     </td>
                     <td style="width:20%;padding-right:12px;vertical-align:top;">
                         <div class="hib-label">Locataire</div>
-                        <div class="hib-value">{{ $edl->locataire_full_name ?: '—' }}</div>
+                        <div class="hib-value">{{ $edl->locataire_full_name ?: '-' }}</div>
                     </td>
                     <td style="width:22%;padding-right:12px;vertical-align:top;">
                         <div class="hib-label">Email</div>
-                        <div class="hib-value">{{ $edl->locataire_email ?: '—' }}</div>
+                        <div class="hib-value">{{ $edl->locataire_email ?: '-' }}</div>
                     </td>
                     <td style="width:12%;padding-right:12px;vertical-align:top;">
                         <div class="hib-label">Date EDL</div>
@@ -516,7 +536,7 @@
 <div class="section">
     <table class="section-header" width="100%" cellpadding="0" cellspacing="0">
         <tr>
-            <td class="section-header-td">Photos — Compteurs &amp; Clés</td>
+            <td class="section-header-td">Photos - Compteurs &amp; Clés</td>
             <td class="section-header-count-td">{{ $compteursPhotos->count() }} photo(s)</td>
         </tr>
     </table>
@@ -540,6 +560,7 @@
             @endif
             @endforeach
         </div>
+        {!! $photoLegend($compteursPhotos, [], 'compteurs') !!}
     </div>
 </div>
 @endif
@@ -607,6 +628,7 @@
             @endif
             @endforeach
         </div>
+        {!! $photoLegend($roomPhotos, $roomCfg['items'], $pieceKey) !!}
         @endif
     </div>
 </div>
@@ -675,6 +697,7 @@
             @endif
             @endforeach
         </div>
+        {!! $photoLegend($voletsPhotos, $voletsConfig['items'], 'volets') !!}
         @endif
     </div>
 </div>
@@ -720,7 +743,7 @@
                     <td>{{ $item }}</td>
                     <td style="text-align:center;font-weight:bold;">{{ $nb }}</td>
                     @if($secCfg['withDimension'])
-                    <td>{{ $dim ?: '—' }}</td>
+                    <td>{{ $dim ?: '-' }}</td>
                     @endif
                     <td class="col-obs">{{ $obs ?: '' }}</td>
                 </tr>
@@ -731,6 +754,11 @@
 </div>
 @endif
 @endforeach
+
+{{-- COMPARATIF ENTRÉE / SORTIE --}}
+@if($edl->type === 'sortant' && $edl->entrant)
+@include('edl.partials.comparison', ['comparison' => app(\App\Services\EdlComparison::class)->build($edl->entrant, $edl)])
+@endif
 
 {{-- SYNTHÈSE --}}
 @php
@@ -774,24 +802,53 @@
 </div>
 @endif
 
-{{-- SIGNATURE --}}
+{{-- SIGNATURES --}}
 <div class="signature-wrap">
-    <table class="signature-header" width="100%" cellpadding="0" cellspacing="0">
-        <tr><td class="signature-header-td">Signature du locataire</td></tr>
+    <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+            <td style="width:50%;vertical-align:top;padding-right:8px;">
+                <table class="signature-header" width="100%" cellpadding="0" cellspacing="0">
+                    <tr><td class="signature-header-td">Signature du technicien</td></tr>
+                </table>
+                <div class="signature-body">
+                    @if($edl->signature_technicien)
+                    <div class="signature-meta">
+                        Signé le <strong>{{ ($edl->signed_at ?? $edl->updated_at)->timezone(config('app.timezone'))->format('d/m/Y à H:i') }}</strong>
+                        &nbsp;&mdash;&nbsp; par <strong>{{ $edl->agent_name }}</strong>
+                    </div>
+                    <img src="{{ $edl->signature_technicien }}" class="signature-img" alt="Signature du technicien">
+                    <div class="signature-meta" style="margin:6px 0 0;">Signature électronique enregistrée dans l'application.</div>
+                    @else
+                    <div class="signature-empty">Non signé.</div>
+                    @endif
+                </div>
+            </td>
+            <td style="width:50%;vertical-align:top;padding-left:8px;">
+                <table class="signature-header" width="100%" cellpadding="0" cellspacing="0">
+                    <tr><td class="signature-header-td">Signature du locataire</td></tr>
+                </table>
+                <div class="signature-body">
+                    @if($edl->signature)
+                    <div class="signature-meta">
+                        Signé le <strong>{{ ($edl->signed_at ?? $edl->updated_at)->timezone(config('app.timezone'))->format('d/m/Y à H:i') }}</strong>
+                        @if($edl->locataire_full_name)
+                        &nbsp;&mdash;&nbsp; par <strong>{{ $edl->locataire_full_name }}</strong>
+                        @endif
+                    </div>
+                    <img src="{{ $edl->signature }}" class="signature-img" alt="Signature du locataire">
+                    <div class="signature-meta" style="margin:6px 0 0;">Signature électronique enregistrée dans l'application.</div>
+                    @elseif($edl->locataire_absent)
+                    <div class="signature-empty">Locataire absent ou dans l'impossibilité de signer.</div>
+                    @if($edl->locataire_full_name)
+                    <div class="signature-meta" style="margin:6px 0 0;">Locataire concerné : <strong>{{ $edl->locataire_full_name }}</strong></div>
+                    @endif
+                    @else
+                    <div class="signature-empty">Aucune signature enregistrée.</div>
+                    @endif
+                </div>
+            </td>
+        </tr>
     </table>
-    <div class="signature-body">
-        @if($edl->signature)
-        <div class="signature-meta">
-            Signé le <strong>{{ $edl->updated_at->format('d/m/Y à H:i') }}</strong>
-            @if($edl->locataire_full_name)
-            &nbsp;&mdash;&nbsp; par <strong>{{ $edl->locataire_full_name }}</strong>
-            @endif
-        </div>
-        <img src="{{ $edl->signature }}" class="signature-img" alt="Signature">
-        @else
-        <div class="signature-empty">Aucune signature enregistrée.</div>
-        @endif
-    </div>
 </div>
 
 {{-- Pagination DomPDF (canvas API, exécuté sur chaque page) --}}
