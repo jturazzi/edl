@@ -17,7 +17,7 @@
         window.__APP_NAME__ = @json(config('app.name', 'État des lieux'));
         window.__APP_VERSION__ = @json(config('app.version'));
         window.__SENTRY_DSN__ = @json(config('sentry.js_dsn'));
-        window.__SENTRY_ENV__ = @json(config('sentry.environment'));
+        window.__SENTRY_ENV__ = @json(config('sentry.environment') ?? config('app.env'));
         window.__APP_LOGO__ = @json(config('app.logo', ''));
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])

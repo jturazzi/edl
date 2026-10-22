@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Support\SentryQueueReporting;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -24,6 +25,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        SentryQueueReporting::register();
+
         // Limites par utilisateur (ou par IP sans session) : protègent contre les abus sans gêner l'usage normal
         $by = fn (Request $r) => (string) ($r->user() ? $r->user()->id : $r->ip());
         RateLimiter::for('api', fn (Request $r) => Limit::perMinute(240)->by($by($r)));
@@ -33,7 +36,7 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app['events']->listen(
             SocialiteWasCalled::class,
-            MicrosoftExtendSocialite::class . '@handle'
+            MicrosoftExtendSocialite::class.'@handle'
         );
     }
 }
