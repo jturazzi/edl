@@ -19,8 +19,7 @@ return [
 
     'pdf_color' => env('APP_PDF_COLOR', '#33CCFF'),
 
-    'version' => env('APP_VERSION', '1.0.0'),
-
+    'version' => '2026.10.1',
     // Adresses e-mail (séparées par des virgules) promues administrateur à la connexion.
     'admin_emails' => array_values(array_filter(array_map(
         fn ($email) => strtolower(trim($email)),
